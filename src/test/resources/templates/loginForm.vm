@@ -1,0 +1,8 @@
+#include("/templates/css.vm")
+<form action="$callbackUrl" method="POST">
+    <input type="text" name="username" value="testUsername" autocomplete="off">
+    <br>
+    <input type="password" name="password" value="testPassword" autocomplete="off">
+    <br>
+    <input type="submit" name="submit" value="Submit"/>
+</form>
