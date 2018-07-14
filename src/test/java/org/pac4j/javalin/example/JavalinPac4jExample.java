@@ -33,7 +33,7 @@ public class JavalinPac4jExample {
 
         Config config = new ExampleConfigFactory(JWT_SALT).build();
         CallbackHandler callback = new CallbackHandler(config, null, true);
-        SecurityHandler facebookFilter = new SecurityHandler(config, "FacebookClient", "", "excludedPath");
+        SecurityHandler facebookSecurityHandler = new SecurityHandler(config, "FacebookClient", "", "excludedPath");
 
         Javalin.create().port(8080).routes(() -> {
 
@@ -41,10 +41,10 @@ public class JavalinPac4jExample {
             get("/callback", callback);
             post("/callback", callback);
 
-            before("/facebook", facebookFilter);
+            before("/facebook", facebookSecurityHandler);
             get("/facebook", JavalinPac4jExample::protectedPage);
 
-            before("/facebook/*", facebookFilter);
+            before("/facebook/*", facebookSecurityHandler);
             get("/facebook/notprotected", JavalinPac4jExample::protectedPage); // excluded in ExampleConfigFactory
 
             before("/facebookadmin", new SecurityHandler(config, "FacebookClient", "admin"));
