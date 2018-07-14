@@ -1,0 +1,4 @@
+#include("/templates/css.vm")
+<h1>Authethticated</h1>
+<div class="profiles">$profiles</div>
+<a href="/" class="button">Back</a>
