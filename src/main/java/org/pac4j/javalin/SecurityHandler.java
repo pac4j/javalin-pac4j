@@ -1,10 +1,9 @@
 package org.pac4j.javalin;
 
 import io.javalin.Context;
-import io.javalin.HaltException;
 import io.javalin.Handler;
+import io.javalin.UnauthorizedResponse;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.engine.DefaultSecurityLogic;
 import org.pac4j.core.engine.SecurityLogic;
 import static org.pac4j.core.util.CommonHelper.assertNotNull;
@@ -55,7 +54,7 @@ public class SecurityHandler implements Handler {
             this.multiProfile
         );
         if (result != AUTH_GRANTED) {
-            throw new HaltException(HttpConstants.UNAUTHORIZED, "Authentication required");
+            throw new UnauthorizedResponse();
         }
     }
 }

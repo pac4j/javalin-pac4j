@@ -1,6 +1,7 @@
 package org.pac4j.javalin;
 
-import io.javalin.HaltException;
+import io.javalin.ForbiddenResponse;
+import io.javalin.UnauthorizedResponse;
 import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
 
@@ -9,9 +10,9 @@ public class DefaultHttpActionAdapter implements HttpActionAdapter<Void, Pac4jCo
     @Override
     public Void adapt(int code, Pac4jContext context) {
         if (code == HttpConstants.UNAUTHORIZED) {
-            throw new HaltException(HttpConstants.UNAUTHORIZED, "Authentication required");
+            throw new UnauthorizedResponse();
         } else if (code == HttpConstants.FORBIDDEN) {
-            throw new HaltException(HttpConstants.FORBIDDEN, "Forbidden");
+            throw new ForbiddenResponse();
         } else if (code == HttpConstants.TEMP_REDIRECT) {
             String location = context.getJavalinCtx().res.getHeader(HttpConstants.LOCATION_HEADER);
             context.getJavalinCtx().redirect(location);
