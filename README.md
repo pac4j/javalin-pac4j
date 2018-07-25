@@ -41,7 +41,7 @@ All released artifacts are available in the [Maven central repository](http://se
 The configuration (`org.pac4j.core.config.Config`) contains all the clients and authorizers required by the application to handle security.
 
 * [ConfigFactory example](https://github.com/pac4j/javalin-pac4j/blob/master/src/test/java/org/pac4j/javalin/example/ExampleConfigFactory.java)
-* [Athorizer example](https://github.com/pac4j/javalin-pac4j/blob/master/src/test/java/org/pac4j/javalin/example/CustomAuthorizer.java)
+* [Authorizer example](https://github.com/pac4j/javalin-pac4j/blob/master/src/test/java/org/pac4j/javalin/example/CustomAuthorizer.java)
 * [Authenticator example](https://github.com/pac4j/javalin-pac4j/blob/master/src/test/java/org/pac4j/javalin/example/TrivialUserPassAuthenticator.java)
 
 ### 3) Protect urls 
