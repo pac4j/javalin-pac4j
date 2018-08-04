@@ -47,7 +47,7 @@
         <a href="/rest-jwt">Protected url by ParameterClient: /rest-jwt</a> (with request parameter: token=<em>jwt_generated_token</em>)
     </li>
     <li>
-        <a href="forceLogin?client_name=FacebookClient">Force Facebook login</a> (even if already authenticated)
+        <a href="force-login?client_name=FacebookClient">Force Facebook login</a> (even if already authenticated)
     </li>
 </ul>
 
@@ -55,7 +55,7 @@
     Local logout
 </a>
 
-<a class="button" href="/centralLogout?url=http://localhost:8080/?forcepostlogouturlafteridp">
+<a class="button" href="/central-logout?url=http://localhost:8080/?forcepostlogouturlafteridp">
     Central logout
 </a>
 

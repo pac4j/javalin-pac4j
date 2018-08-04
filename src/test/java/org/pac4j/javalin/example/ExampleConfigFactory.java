@@ -64,7 +64,7 @@ public class ExampleConfigFactory implements ConfigFactory {
         TrivialUserPassAuthenticator trivialUserPassAuthenticator = new TrivialUserPassAuthenticator("testUsername", "testPassword");
 
         // HTTP
-        FormClient formClient = new FormClient("http://localhost:8080/loginForm", trivialUserPassAuthenticator);
+        FormClient formClient = new FormClient("http://localhost:8080/login-form", trivialUserPassAuthenticator);
         IndirectBasicAuthClient indirectBasicAuthClient = new IndirectBasicAuthClient(trivialUserPassAuthenticator);
 
         // CAS

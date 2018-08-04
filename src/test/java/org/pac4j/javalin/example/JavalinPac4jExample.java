@@ -18,9 +18,9 @@ import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
 import org.pac4j.jwt.profile.JwtGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static io.javalin.ApiBuilder.before;
-import static io.javalin.ApiBuilder.get;
-import static io.javalin.ApiBuilder.post;
+import static io.javalin.apibuilder.ApiBuilder.before;
+import static io.javalin.apibuilder.ApiBuilder.get;
+import static io.javalin.apibuilder.ApiBuilder.post;
 import static io.javalin.rendering.template.TemplateUtil.model;
 
 public class JavalinPac4jExample {
@@ -35,7 +35,9 @@ public class JavalinPac4jExample {
         CallbackHandler callback = new CallbackHandler(config, null, true);
         SecurityHandler facebookSecurityHandler = new SecurityHandler(config, "FacebookClient", "", "excludedPath");
 
-        Javalin.create().port(8080).routes(() -> {
+        Javalin.create()
+            .port(8080)
+            .routes(() -> {
 
             get("/", JavalinPac4jExample::index);
             get("/callback", callback);
@@ -82,10 +84,10 @@ public class JavalinPac4jExample {
 
             get("/jwt", JavalinPac4jExample::jwt);
 
-            get("/loginForm", ctx -> form(ctx, config));
+            get("/login-form", ctx -> form(ctx, config));
             get("/logout", localLogoutHandler(config));
-            get("/centralLogout", centralLogoutHandler(config));
-            get("/forceLogin", ctx -> forceLogin(ctx, config));
+            get("/central-logout", centralLogoutHandler(config));
+            get("/force-login", ctx -> forceLogin(ctx, config));
             before("/body", new SecurityHandler(config, "HeaderClient"));
             post("/body", ctx -> {
                 logger.debug("Body: " + ctx.body());
