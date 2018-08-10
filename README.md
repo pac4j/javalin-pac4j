@@ -62,3 +62,33 @@ The [example app](https://github.com/pac4j/javalin-pac4j/blob/master/src/test/ja
 
 You can have a local logout or a global logout. 
 The [example app](https://github.com/pac4j/javalin-pac4j/blob/master/src/test/java/org/pac4j/javalin/example/JavalinPac4jExample.java) shows both implementations.
+
+## Need help?
+
+If you have any question, please use the following mailing lists:
+
+- [pac4j users](https://groups.google.com/forum/?hl=en#!forum/pac4j-users)
+- [pac4j developers](https://groups.google.com/forum/?hl=en#!forum/pac4j-dev)
+
+
+## Development
+
+The version 1.0.0.RC0-SNAPSHOT is under development.
+
+Maven artifacts are built via Travis: [![Build Status](https://travis-ci.org/pac4j/javalin-pac4j.png?branch=master)](https://travis-ci.org/pac4j/javalin-pac4j) and available in the [Sonatype snapshots repository](https://oss.sonatype.org/content/repositories/snapshots/org/pac4j). This repository must be added in the Maven *pom.xml* file for example:
+
+```xml
+<repositories>
+  <repository>
+    <id>sonatype-nexus-snapshots</id>
+    <name>Sonatype Nexus Snapshots</name>
+    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    <releases>
+      <enabled>false</enabled>
+    </releases>
+    <snapshots>
+      <enabled>true</enabled>
+    </snapshots>
+  </repository>
+</repositories>
+```
