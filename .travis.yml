@@ -1,0 +1,17 @@
+language: java
+
+sudo: false
+
+script: "mvn package --settings travis/settings.xml"
+
+jdk:
+  - oraclejdk8
+
+env:
+  global:
+  - secure: "4hQzMiQcrGjAibBoijF76LTnluyn0SVW1TA+02i1k0rukXYDW98UqHVk9fegV0DP6jagrMPq9oNSuxAajfqpgJ4RZngYcczb1+P/OnF+7gBqcDhTEkRFjeLWjVx0mob5s+BT1f2yIFGjqgGaJd7DxZnwOR0mkoYJjPuiDzEIhJIn2M2nBP+lbFKivtuR+WU71kyoW6Q0F9+kZkWlWTMisnnqffrATHTtQ9BszaWTUGHxjqM1SNAYr14eCU1uuPWK3rcq8Y+6fpa/Nxf6yc0v88ZnAvSHX2dwgx3gsI9+RSlcV/tOYDL3/nK4nFICx/CixpJhOqAgmVPepxJTJxWPg7YLHdl5fQEMU923CT+C8bxM0PKVZl/zGkKHqwcEuk2sDCphXiUzfVP3yAjpL/KmG7t/tE8ZRsNH/p1MLVUsNhzHIx14sujtGepVU3o/YzZ1W/v/UCcyq6eQqC8ouJdIx4PcaHBm61qHpK1BrIVmC/8QiGdjq1frmyE/9fjFygwu8/G+ZlpzkhPJOqzPf6IiuPgM6P+sYKyFcTfdX9pDGmV/xWq3o6HN116T+XoC3AHLJtWpgVDdMIZYYWaCT8K1KIJkzcZkHyPGswdCu/mIWwg+efLGFP6Qf/jH//2HEVgybpBaGVRyLLesJDlW0ZKloSkrQsLpbfP4QOr4/yR5l9Y="
+  - secure: "UBrvvHkcwSInZnViDiHB2u6vO7fRjvQlaFVU4n4BQf2qGfcCPyJ8wxnYa+4mf0iK9yG5Fx8WSTFEKhSffAcx+PPuhitKjQXHhtwS2kquigvJNM5DXooDa/zCeOSiagOWAy5DXj164ISGuWkg0pH88II8B9WwBZs/0/k3xeMI66lwatO1F5yTldOAJcIisBCNl8nwGYtonuaaIhJiMwPoGMq5d0alP7qJ3OFjqxQZA786CU9sQPeYDE08SMWLZ/ykMPqk05ZnTqF/wlM2eYCEPU1+F4hakvIasoXRXb3whC0vmjhBLLYerdi9gc+RaYd9+W7dUe8byBN8i/faoXGnq7QpFztx7gCRfKVT9oT9ptEEKR3IO48HtTdfcgZlZYG0+MwZ+7oAb9W1duy+Wl7sJlfikF20tQh//aPpJEA/nXAUTU6SnS8aIvcZBU7zQTDyaVeWLLmr8FKRJz+uOVqtKr8P7ZKH68GLSPvPnDoVqfP2mmjCeCbKdK4X5xcAbosyzVc8bx/BWA/1qv3sY0hxyrl6A828FLtUH30XSIC1NdLdGpGikKqdp3T++2n4HUMA1sKVlv31v1usa0LrDQIPT2APEyJwynDcgGlxdrP2RsQlNd1UOAJFYfrkQIVaqF89PellO6Ehhlxe93XZZ9rwJKeNuTfcilQ1tuOCIKumvv0="
+
+after_success:
+- chmod -R 777 ./travis/deploy-to-sonatype.sh
+- ./travis/deploy-to-sonatype.sh
