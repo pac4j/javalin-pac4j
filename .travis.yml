@@ -5,7 +5,7 @@ sudo: false
 script: "mvn package --settings travis/settings.xml"
 
 jdk:
-  - oraclejdk8
+  - openjdk:8
 
 env:
   global:
