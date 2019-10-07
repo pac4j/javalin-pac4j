@@ -1,10 +1,11 @@
 package org.pac4j.javalin;
 
-import io.javalin.Context;
-import io.javalin.Handler;
+import io.javalin.http.Context;
+import io.javalin.http.Handler;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.engine.CallbackLogic;
 import org.pac4j.core.engine.DefaultCallbackLogic;
+
 import static org.pac4j.core.util.CommonHelper.assertNotNull;
 
 public class CallbackHandler implements Handler {

@@ -1,7 +1,7 @@
 package org.pac4j.javalin.example;
 
-import io.javalin.ForbiddenResponse;
-import io.javalin.UnauthorizedResponse;
+import io.javalin.http.ForbiddenResponse;
+import io.javalin.http.UnauthorizedResponse;
 import org.pac4j.core.context.HttpConstants;
 import org.pac4j.javalin.DefaultHttpActionAdapter;
 import org.pac4j.javalin.Pac4jContext;

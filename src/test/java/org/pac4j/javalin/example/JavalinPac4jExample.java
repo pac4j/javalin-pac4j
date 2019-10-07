@@ -1,9 +1,7 @@
 package org.pac4j.javalin.example;
 
-import io.javalin.Context;
 import io.javalin.Javalin;
-import java.util.List;
-import java.util.Optional;
+import io.javalin.http.Context;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.exception.HttpAction;
@@ -18,10 +16,14 @@ import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
 import org.pac4j.jwt.profile.JwtGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Optional;
+
 import static io.javalin.apibuilder.ApiBuilder.before;
 import static io.javalin.apibuilder.ApiBuilder.get;
 import static io.javalin.apibuilder.ApiBuilder.post;
-import static io.javalin.rendering.template.TemplateUtil.model;
+import static io.javalin.plugin.rendering.template.TemplateUtil.model;
 
 public class JavalinPac4jExample {
 
@@ -36,7 +38,6 @@ public class JavalinPac4jExample {
         SecurityHandler facebookSecurityHandler = new SecurityHandler(config, "FacebookClient", "", "excludedPath");
 
         Javalin.create()
-            .port(8080)
             .routes(() -> {
 
             get("/", JavalinPac4jExample::index);
@@ -97,7 +98,7 @@ public class JavalinPac4jExample {
         }).exception(Exception.class, (e, ctx) -> {
             logger.error("Unexpected exception", e);
             ctx.result(e.toString());
-        }).start();
+        }).start(8080);
 
     }
 
