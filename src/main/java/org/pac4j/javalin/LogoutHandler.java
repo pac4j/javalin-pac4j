@@ -2,15 +2,19 @@ package org.pac4j.javalin;
 
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
+import org.jetbrains.annotations.NotNull;
 import org.pac4j.core.config.Config;
+import org.pac4j.core.context.session.JEESessionStore;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.engine.DefaultLogoutLogic;
 import org.pac4j.core.engine.LogoutLogic;
+import org.pac4j.core.http.adapter.HttpActionAdapter;
+import org.pac4j.core.util.FindBest;
 
 import static org.pac4j.core.util.CommonHelper.assertNotNull;
 
 public class LogoutHandler implements Handler {
-
-    public LogoutLogic<Object, Pac4jContext> logoutLogic = new DefaultLogoutLogic<>();
+    public LogoutLogic<Object, JavalinWebContext> logoutLogic;
     public Config config;
     public String defaultUrl;
     public String logoutUrlPattern;
@@ -33,13 +37,20 @@ public class LogoutHandler implements Handler {
     }
 
     @Override
-    public void handle(Context javalinCtx) {
-        assertNotNull("logoutLogic", logoutLogic);
+    public void handle(@NotNull Context javalinCtx) {
+        final SessionStore<JavalinWebContext> bestSessionStore = FindBest.sessionStore(null, config, JEESessionStore.INSTANCE);
+        final HttpActionAdapter<Object, JavalinWebContext> bestAdapter = FindBest.httpActionAdapter(null, config, JavalinHttpActionAdapter.INSTANCE);
+        final LogoutLogic<Object, JavalinWebContext> bestLogic = FindBest.logoutLogic(logoutLogic, config, DefaultLogoutLogic.INSTANCE);
+
+        assertNotNull("logoutLogic", bestLogic);
+        assertNotNull("bestSessionStore", bestSessionStore);
+        assertNotNull("bestAdapter", bestAdapter);
         assertNotNull("config", config);
-        logoutLogic.perform(
-            new Pac4jContext(javalinCtx, config.getSessionStore()),
+
+        bestLogic.perform(
+            new JavalinWebContext(javalinCtx, bestSessionStore),
             this.config,
-            this.config.getHttpActionAdapter(),
+                bestAdapter,
             this.defaultUrl,
             this.logoutUrlPattern,
             this.localLogout,
@@ -47,5 +58,4 @@ public class LogoutHandler implements Handler {
             this.centralLogout
         );
     }
-
 }

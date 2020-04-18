@@ -5,7 +5,7 @@
 The `javalin-pac4j` project is an easy and powerful security library for [Javalin](https://javalin.io) web applications which supports 
 authentication and authorization, but also logout and advanced features like session fixation and CSRF protection.
 
-It's based on Java 8 and the **[pac4j security engine](https://github.com/pac4j/pac4j) v3**. 
+It's based on Java 8 and the **[pac4j security engine](https://github.com/pac4j/pac4j) v4**. 
 It's available under the Apache 2 license.
 
 [**Main concepts and components:**](http://www.pac4j.org/docs/main-concepts-and-components.html)
@@ -31,8 +31,8 @@ Just follow these easy steps to secure your Javalin application:
 
 You need to add a dependency for:
  
-- the `javalin-pac4j` library (<em>groupId</em>: **org.pac4j**, *version*: **1.0.0**)
-- the appropriate `pac4j` [submodules](http://www.pac4j.org/docs/clients.html) (<em>groupId</em>: **org.pac4j**, *version*: **3.0.0**): `pac4j-oauth` for OAuth support (Facebook, Twitter...), `pac4j-cas` for CAS support, `pac4j-ldap` for LDAP authentication, etc.
+- the `javalin-pac4j` library (<em>groupId</em>: **org.pac4j**, *version*: **4.0.0**)
+- the appropriate `pac4j` [submodules](http://www.pac4j.org/docs/clients.html) (<em>groupId</em>: **org.pac4j**, *version*: **4.0.0**): `pac4j-oauth` for OAuth support (Facebook, Twitter...), `pac4j-cas` for CAS support, `pac4j-ldap` for LDAP authentication, etc.
 
 All released artifacts are available in the [Maven central repository](http://search.maven.org/#search%7Cga%7C1%7Cpac4j).
 
@@ -72,8 +72,6 @@ If you have any question, please use the following mailing lists:
 
 
 ## Development
-
-The version 1.0.0.RC0-SNAPSHOT is under development.
 
 Maven artifacts are built via Travis: [![Build Status](https://travis-ci.org/pac4j/javalin-pac4j.png?branch=master)](https://travis-ci.org/pac4j/javalin-pac4j) and available in the [Sonatype snapshots repository](https://oss.sonatype.org/content/repositories/snapshots/org/pac4j). This repository must be added in the Maven *pom.xml* file for example:
 
