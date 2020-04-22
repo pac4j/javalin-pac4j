@@ -130,9 +130,9 @@ public class JavalinPac4jExample {
     }
 
     private static void form(Context ctx, Config config) {
-        FormClient formClient = config.getClients().findClient(FormClient.class).orElseThrow(() -> {
-            throw new IllegalStateException("Client not found");
-        });
+        FormClient formClient = config.getClients().findClient(FormClient.class).orElse(null);
+        if(formClient == null) throw new IllegalStateException("Client not found");
+
         ctx.render("/templates/loginForm.vm", model("callbackUrl", formClient.getCallbackUrl()));
     }
 
@@ -146,12 +146,14 @@ public class JavalinPac4jExample {
 
     private static void forceLogin(Context ctx, Config config) {
         JavalinWebContext context = new JavalinWebContext(ctx);
-        String clientName = context.getRequestParameter("FormClient").orElseThrow(() -> {
-            throw new IllegalStateException("Client name not found");
-        });
-        Client client = config.getClients().findClient(clientName).orElseThrow(() -> {
-            throw new IllegalStateException("Client not found");
-        });
+
+
+        String clientName = context.getRequestParameter("FormClient").orElse(null);
+        if(clientName == null) throw new IllegalStateException("Client name not found");
+
+        Client client = config.getClients().findClient(clientName).orElse(null);
+        if(client == null) throw new IllegalStateException("Client not found");
+
         HttpAction action;
         try {
             action = (HttpAction) client.getRedirectionAction(context).get();
