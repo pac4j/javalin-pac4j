@@ -8,10 +8,7 @@ import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.http.client.indirect.FormClient;
-import org.pac4j.javalin.CallbackHandler;
-import org.pac4j.javalin.LogoutHandler;
-import org.pac4j.javalin.JavalinWebContext;
-import org.pac4j.javalin.SecurityHandler;
+import org.pac4j.javalin.*;
 import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
 import org.pac4j.jwt.profile.JwtGenerator;
 import org.slf4j.Logger;
@@ -161,6 +158,6 @@ public class JavalinPac4jExample {
         } catch (HttpAction e) {
             action = e;
         }
-        config.getHttpActionAdapter().adapt(action, context);
+        JavalinHttpActionAdapter.INSTANCE.adapt(action, context);
     }
 }
