@@ -17,7 +17,7 @@ import static org.pac4j.core.util.CommonHelper.assertNotNull;
 public class SecurityHandler implements Handler {
     private final String AUTH_GRANTED = "AUTH_GRANTED";
 
-    public SecurityLogic<Object, JavalinWebContext> securityLogic = new DefaultSecurityLogic<>();
+    public SecurityLogic<Object, JavalinWebContext> securityLogic;
     public Config config;
     public String clients;
     public String authorizers;
