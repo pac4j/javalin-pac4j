@@ -42,9 +42,6 @@ public class LogoutHandler implements Handler {
         final HttpActionAdapter<Object, JavalinWebContext> bestAdapter = FindBest.httpActionAdapter(null, config, JavalinHttpActionAdapter.INSTANCE);
         final LogoutLogic<Object, JavalinWebContext> bestLogic = FindBest.logoutLogic(logoutLogic, config, DefaultLogoutLogic.INSTANCE);
 
-        assertNotNull("logoutLogic", bestLogic);
-        assertNotNull("bestSessionStore", bestSessionStore);
-        assertNotNull("bestAdapter", bestAdapter);
         assertNotNull("config", config);
 
         bestLogic.perform(

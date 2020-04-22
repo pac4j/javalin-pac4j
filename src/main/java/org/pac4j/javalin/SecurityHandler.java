@@ -50,9 +50,6 @@ public class SecurityHandler implements Handler {
         final HttpActionAdapter<Object, JavalinWebContext> bestAdapter = FindBest.httpActionAdapter(null, config, JavalinHttpActionAdapter.INSTANCE);
         final SecurityLogic<Object, JavalinWebContext> bestLogic = FindBest.securityLogic(securityLogic, config, DefaultSecurityLogic.INSTANCE);
 
-        assertNotNull("securityLogic", bestLogic);
-        assertNotNull("bestSessionStore", bestSessionStore);
-        assertNotNull("bestAdapter", bestAdapter);
         assertNotNull("config", config);
 
         JavalinWebContext context = new JavalinWebContext(javalinCtx, bestSessionStore);

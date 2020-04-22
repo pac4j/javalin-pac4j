@@ -46,9 +46,6 @@ public class CallbackHandler implements Handler {
         final HttpActionAdapter<Object, JavalinWebContext> bestAdapter = FindBest.httpActionAdapter(null, config, JavalinHttpActionAdapter.INSTANCE);
         final CallbackLogic<Object, JavalinWebContext> bestCallbackLogic = FindBest.callbackLogic(callbackLogic, config, DefaultCallbackLogic.INSTANCE);
 
-        assertNotNull("bestSessionStore", bestSessionStore);
-        assertNotNull("bestAdapter", bestAdapter);
-        assertNotNull("bestCallbackLogic", bestCallbackLogic);
         assertNotNull("config", config);
 
         JavalinWebContext context = new JavalinWebContext(javalinCtx, bestSessionStore);
