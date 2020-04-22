@@ -5,6 +5,10 @@ import org.pac4j.core.context.JEEContext;
 import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.core.context.session.SessionStore;
 
+/**
+ * @author Maximilian Hippler
+ * @since 3.0.0
+ */
 public class JavalinWebContext extends JEEContext {
     private final Context javalinCtx;
 

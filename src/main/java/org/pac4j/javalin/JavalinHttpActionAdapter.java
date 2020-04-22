@@ -8,6 +8,10 @@ import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
 
+/**
+ * @author Maximilian Hippler
+ * @since 3.0.0
+ */
 public class JavalinHttpActionAdapter implements HttpActionAdapter<Void, JavalinWebContext> {
     public static final JavalinHttpActionAdapter INSTANCE = new JavalinHttpActionAdapter();
 
