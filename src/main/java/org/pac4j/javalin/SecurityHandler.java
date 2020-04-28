@@ -3,17 +3,21 @@ package org.pac4j.javalin;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.UnauthorizedResponse;
+import org.jetbrains.annotations.NotNull;
 import org.pac4j.core.config.Config;
+import org.pac4j.core.context.session.JEESessionStore;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.engine.DefaultSecurityLogic;
 import org.pac4j.core.engine.SecurityLogic;
+import org.pac4j.core.http.adapter.HttpActionAdapter;
+import org.pac4j.core.util.FindBest;
 
 import static org.pac4j.core.util.CommonHelper.assertNotNull;
 
 public class SecurityHandler implements Handler {
+    private final String AUTH_GRANTED = "AUTH_GRANTED";
 
-    private String AUTH_GRANTED = "AUTH_GRANTED";
-
-    public SecurityLogic<Object, Pac4jContext> securityLogic = new DefaultSecurityLogic<>();
+    public SecurityLogic<Object, JavalinWebContext> securityLogic;
     public Config config;
     public String clients;
     public String authorizers;
@@ -41,14 +45,18 @@ public class SecurityHandler implements Handler {
     }
 
     @Override
-    public void handle(Context javalinCtx) {
-        assertNotNull("securityLogic", securityLogic);
+    public void handle(@NotNull Context javalinCtx) {
+        final SessionStore<JavalinWebContext> bestSessionStore = FindBest.sessionStore(null, config, JEESessionStore.INSTANCE);
+        final HttpActionAdapter<Object, JavalinWebContext> bestAdapter = FindBest.httpActionAdapter(null, config, JavalinHttpActionAdapter.INSTANCE);
+        final SecurityLogic<Object, JavalinWebContext> bestLogic = FindBest.securityLogic(securityLogic, config, DefaultSecurityLogic.INSTANCE);
+
         assertNotNull("config", config);
-        Pac4jContext context = new Pac4jContext(javalinCtx, config.getSessionStore());
-        Object result = securityLogic.perform(
+
+        JavalinWebContext context = new JavalinWebContext(javalinCtx, bestSessionStore);
+        Object result = bestLogic.perform(
             context,
             this.config,
-            (ctx, profiles, parameters) -> AUTH_GRANTED, config.getHttpActionAdapter(),
+            (ctx, profiles, parameters) -> AUTH_GRANTED, bestAdapter,
             this.clients,
             this.authorizers,
             this.matchers,

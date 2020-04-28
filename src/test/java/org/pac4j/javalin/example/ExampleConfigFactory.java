@@ -8,7 +8,7 @@ import org.pac4j.core.client.direct.AnonymousClient;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.config.ConfigFactory;
 import org.pac4j.core.credentials.TokenCredentials;
-import org.pac4j.core.matching.PathMatcher;
+import org.pac4j.core.matching.matcher.PathMatcher;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.util.CommonHelper;
 import org.pac4j.http.client.direct.DirectBasicAuthClient;
@@ -23,11 +23,12 @@ import org.pac4j.oauth.client.TwitterClient;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.saml.client.SAML2Client;
-import org.pac4j.saml.client.SAML2ClientConfiguration;
+import org.pac4j.saml.config.SAML2Configuration;
+
+import java.util.Optional;
 
 public class ExampleConfigFactory implements ConfigFactory {
-
-    private String salt;
+    private final String salt;
 
     public ExampleConfigFactory(String salt) {
         this.salt = salt;
@@ -41,13 +42,13 @@ public class ExampleConfigFactory implements ConfigFactory {
         oidcConfiguration.setDiscoveryURI("https://accounts.google.com/.well-known/openid-configuration");
         oidcConfiguration.setUseNonce(true);
         oidcConfiguration.addCustomParam("prompt", "consent");
-        OidcClient oidcClient = new OidcClient(oidcConfiguration);
+        OidcClient<OidcConfiguration> oidcClient = new OidcClient<>(oidcConfiguration);
         oidcClient.setAuthorizationGenerator((ctx, profile) -> {
             profile.addRole("ROLE_ADMIN");
-            return profile;
+            return Optional.of(profile);
         });
 
-        SAML2ClientConfiguration cfg = new SAML2ClientConfiguration(
+        SAML2Configuration cfg = new SAML2Configuration(
             "resource:samlKeystore.jks",
             "pac4j-demo-passwd",
             "pac4j-demo-passwd",
@@ -102,7 +103,7 @@ public class ExampleConfigFactory implements ConfigFactory {
         );
 
         Config config = new Config(clients);
-        config.addAuthorizer("admin", new RequireAnyRoleAuthorizer("ROLE_ADMIN"));
+        config.addAuthorizer("admin", new RequireAnyRoleAuthorizer<>("ROLE_ADMIN"));
         config.addAuthorizer("custom", new CustomAuthorizer());
         config.addMatcher("excludedPath", new PathMatcher().excludeRegex("^/facebook/notprotected$"));
         config.setHttpActionAdapter(new ExampleHttpActionAdapter());

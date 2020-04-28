@@ -7,9 +7,8 @@ import org.pac4j.core.exception.CredentialsException;
 import org.pac4j.core.profile.CommonProfile;
 
 public class TrivialUserPassAuthenticator implements Authenticator<UsernamePasswordCredentials> {
-
-    private String testUsername;
-    private String testPassword;
+    private final String testUsername;
+    private final String testPassword;
 
     public TrivialUserPassAuthenticator(String testUsername, String testPassword) {
         this.testUsername = testUsername;
@@ -27,5 +26,4 @@ public class TrivialUserPassAuthenticator implements Authenticator<UsernamePassw
             throw new CredentialsException("Invalid credentials");
         }
     }
-
 }
