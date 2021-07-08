@@ -17,7 +17,7 @@ import static org.pac4j.core.util.CommonHelper.assertNotNull;
 public class SecurityHandler implements Handler {
     private final String AUTH_GRANTED = "AUTH_GRANTED";
 
-    public SecurityLogic<Object, JavalinWebContext> securityLogic;
+    public SecurityLogic securityLogic;
     public Config config;
     public String clients;
     public String authorizers;
@@ -46,21 +46,22 @@ public class SecurityHandler implements Handler {
 
     @Override
     public void handle(@NotNull Context javalinCtx) {
-        final SessionStore<JavalinWebContext> bestSessionStore = FindBest.sessionStore(null, config, JEESessionStore.INSTANCE);
-        final HttpActionAdapter<Object, JavalinWebContext> bestAdapter = FindBest.httpActionAdapter(null, config, JavalinHttpActionAdapter.INSTANCE);
-        final SecurityLogic<Object, JavalinWebContext> bestLogic = FindBest.securityLogic(securityLogic, config, DefaultSecurityLogic.INSTANCE);
+        final SessionStore bestSessionStore = FindBest.sessionStore(null, config, JEESessionStore.INSTANCE);
+        final HttpActionAdapter bestAdapter = FindBest.httpActionAdapter(null, config, JavalinHttpActionAdapter.INSTANCE);
+        final SecurityLogic bestLogic = FindBest.securityLogic(securityLogic, config, DefaultSecurityLogic.INSTANCE);
 
         assertNotNull("config", config);
 
-        JavalinWebContext context = new JavalinWebContext(javalinCtx, bestSessionStore);
+        JavalinWebContext context = new JavalinWebContext(javalinCtx);
         Object result = bestLogic.perform(
             context,
+            bestSessionStore,
             this.config,
-            (ctx, profiles, parameters) -> AUTH_GRANTED, bestAdapter,
+            (ctx, sessionStore, profiles, parameters) -> AUTH_GRANTED,
+            bestAdapter,
             this.clients,
             this.authorizers,
-            this.matchers,
-            this.multiProfile
+            this.matchers
         );
         if (result != AUTH_GRANTED) {
             throw new UnauthorizedResponse();

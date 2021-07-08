@@ -14,11 +14,9 @@ import org.pac4j.core.util.FindBest;
 import static org.pac4j.core.util.CommonHelper.assertNotNull;
 
 public class CallbackHandler implements Handler {
-    public CallbackLogic<Object, JavalinWebContext> callbackLogic;
+    public CallbackLogic callbackLogic;
     public Config config;
     public String defaultUrl;
-    public Boolean multiProfile;
-    public Boolean saveInSession;
     public Boolean renewSession;
 
     public CallbackHandler(Config config) {
@@ -29,32 +27,26 @@ public class CallbackHandler implements Handler {
         this(config, defaultUrl, null);
     }
 
-    public CallbackHandler(Config config, String defaultUrl, Boolean multiProfile) {
-        this(config, defaultUrl, multiProfile, null);
-    }
-
-    public CallbackHandler(Config config, String defaultUrl, Boolean multiProfile, Boolean renewSession) {
+    public CallbackHandler(Config config, String defaultUrl, Boolean renewSession) {
         this.config = config;
         this.defaultUrl = defaultUrl;
-        this.multiProfile = multiProfile;
         this.renewSession = renewSession;
     }
 
     @Override
     public void handle(@NotNull Context javalinCtx) {
-        final SessionStore<JavalinWebContext> bestSessionStore = FindBest.sessionStore(null, config, JEESessionStore.INSTANCE);
-        final HttpActionAdapter<Object, JavalinWebContext> bestAdapter = FindBest.httpActionAdapter(null, config, JavalinHttpActionAdapter.INSTANCE);
-        final CallbackLogic<Object, JavalinWebContext> bestCallbackLogic = FindBest.callbackLogic(callbackLogic, config, DefaultCallbackLogic.INSTANCE);
+        final SessionStore bestSessionStore = FindBest.sessionStore(null, config, JEESessionStore.INSTANCE);
+        final HttpActionAdapter bestAdapter = FindBest.httpActionAdapter(null, config, JavalinHttpActionAdapter.INSTANCE);
+        final CallbackLogic bestCallbackLogic = FindBest.callbackLogic(callbackLogic, config, DefaultCallbackLogic.INSTANCE);
 
         assertNotNull("config", config);
 
-        JavalinWebContext context = new JavalinWebContext(javalinCtx, bestSessionStore);
+        JavalinWebContext context = new JavalinWebContext(javalinCtx);
         bestCallbackLogic.perform(context,
+                bestSessionStore,
                 this.config,
                 bestAdapter,
                 this.defaultUrl,
-                this.saveInSession,
-                this.multiProfile,
                 this.renewSession,
                 "FormClient"
         );

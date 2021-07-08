@@ -4,11 +4,17 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.config.Config;
+import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.ProfileManager;
+import org.pac4j.core.profile.UserProfile;
 import org.pac4j.http.client.indirect.FormClient;
-import org.pac4j.javalin.*;
+import org.pac4j.javalin.CallbackHandler;
+import org.pac4j.javalin.JavalinHttpActionAdapter;
+import org.pac4j.javalin.JavalinWebContext;
+import org.pac4j.javalin.LogoutHandler;
+import org.pac4j.javalin.SecurityHandler;
 import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
 import org.pac4j.jwt.profile.JwtGenerator;
 import org.slf4j.Logger;
@@ -119,19 +125,20 @@ public class JavalinPac4jExample {
 
     private static void jwt(Context ctx) {
         JavalinWebContext context = new JavalinWebContext(ctx);
-        ProfileManager<CommonProfile> manager = new ProfileManager<>(context);
-        Optional<CommonProfile> profile = manager.get(true);
+        ProfileManager manager = new ProfileManager(context, JEESessionStore.INSTANCE);
+        Optional<CommonProfile> profile = manager.getProfile(CommonProfile.class);
         String token = "";
         if (profile.isPresent()) {
-            JwtGenerator<CommonProfile> generator = new JwtGenerator<>(new SecretSignatureConfiguration(JWT_SALT));
+            JwtGenerator generator = new JwtGenerator(new SecretSignatureConfiguration(JWT_SALT));
             token = generator.generate(profile.get());
         }
         ctx.render("/templates/jwt.vm", model("token", token));
     }
 
     private static void form(Context ctx, Config config) {
-        FormClient formClient = config.getClients().findClient(FormClient.class).orElse(null);
-        if(formClient == null) throw new IllegalStateException("Client not found");
+        Client client = config.getClients().findClient("FormClient").orElse(null);
+        if(client == null) throw new IllegalStateException("Client not found");
+        FormClient formClient = (FormClient) client;
 
         ctx.render("/templates/loginForm.vm", model("callbackUrl", formClient.getCallbackUrl()));
     }
@@ -140,8 +147,8 @@ public class JavalinPac4jExample {
         ctx.render("/templates/protectedPage.vm", model("profiles", getProfiles(ctx)));
     }
 
-    private static List<CommonProfile> getProfiles(Context ctx) {
-        return new ProfileManager<CommonProfile>(new JavalinWebContext(ctx)).getAll(true);
+    private static List<UserProfile> getProfiles(Context ctx) {
+        return new ProfileManager(new JavalinWebContext(ctx), JEESessionStore.INSTANCE).getProfiles();
     }
 
     private static void forceLogin(Context ctx, Config config) {
@@ -156,7 +163,7 @@ public class JavalinPac4jExample {
 
         HttpAction action;
         try {
-            action = (HttpAction) client.getRedirectionAction(context).get();
+            action = (HttpAction) client.getRedirectionAction(context, JEESessionStore.INSTANCE).get();
         } catch (HttpAction e) {
             action = e;
         }

@@ -2,8 +2,6 @@ package org.pac4j.javalin;
 
 import io.javalin.http.Context;
 import org.pac4j.core.context.JEEContext;
-import org.pac4j.core.context.session.JEESessionStore;
-import org.pac4j.core.context.session.SessionStore;
 
 /**
  * @author Maximilian Hippler
@@ -13,11 +11,7 @@ public class JavalinWebContext extends JEEContext {
     private final Context javalinCtx;
 
     public JavalinWebContext(Context javalinCtx) {
-        this(javalinCtx, JEESessionStore.INSTANCE);
-    }
-
-    public JavalinWebContext(Context javalinCtx, SessionStore sessionStore) {
-        super(javalinCtx.req, javalinCtx.res, sessionStore);
+        super(javalinCtx.req, javalinCtx.res);
         this.javalinCtx = javalinCtx;
     }
 
