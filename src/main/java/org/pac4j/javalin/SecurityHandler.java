@@ -22,7 +22,6 @@ public class SecurityHandler implements Handler {
     public String clients;
     public String authorizers;
     public String matchers;
-    public Boolean multiProfile;
 
     public SecurityHandler(Config config, String clients) {
         this(config, clients, null, null);
@@ -33,15 +32,10 @@ public class SecurityHandler implements Handler {
     }
 
     public SecurityHandler(Config config, String clients, String authorizers, String matchers) {
-        this(config, clients, authorizers, matchers, null);
-    }
-
-    public SecurityHandler(Config config, String clients, String authorizers, String matchers, Boolean multiProfile) {
         this.config = config;
         this.clients = clients;
         this.authorizers = authorizers;
         this.matchers = matchers;
-        this.multiProfile = multiProfile;
     }
 
     @Override
