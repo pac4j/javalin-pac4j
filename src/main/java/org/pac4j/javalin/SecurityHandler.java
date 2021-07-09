@@ -17,7 +17,6 @@ import static org.pac4j.core.util.CommonHelper.assertNotNull;
 public class SecurityHandler implements Handler {
     private final String AUTH_GRANTED = "AUTH_GRANTED";
 
-    public SecurityLogic securityLogic;
     public Config config;
     public String clients;
     public String authorizers;
@@ -32,6 +31,7 @@ public class SecurityHandler implements Handler {
     }
 
     public SecurityHandler(Config config, String clients, String authorizers, String matchers) {
+        assertNotNull("config", config);
         this.config = config;
         this.clients = clients;
         this.authorizers = authorizers;
@@ -42,9 +42,7 @@ public class SecurityHandler implements Handler {
     public void handle(@NotNull Context javalinCtx) {
         final SessionStore bestSessionStore = FindBest.sessionStore(null, config, JEESessionStore.INSTANCE);
         final HttpActionAdapter bestAdapter = FindBest.httpActionAdapter(null, config, JavalinHttpActionAdapter.INSTANCE);
-        final SecurityLogic bestLogic = FindBest.securityLogic(securityLogic, config, DefaultSecurityLogic.INSTANCE);
-
-        assertNotNull("config", config);
+        final SecurityLogic bestLogic = FindBest.securityLogic(null, config, DefaultSecurityLogic.INSTANCE);
 
         JavalinWebContext context = new JavalinWebContext(javalinCtx);
         Object result = bestLogic.perform(
