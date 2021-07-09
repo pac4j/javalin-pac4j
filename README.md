@@ -5,25 +5,26 @@
 The `javalin-pac4j` project is an easy and powerful security library for [Javalin](https://javalin.io) web applications which supports 
 authentication and authorization, but also logout and advanced features like session fixation and CSRF protection.
 
-It's based on Java 8 and the **[pac4j security engine](https://github.com/pac4j/pac4j) v4**. 
-It's available under the Apache 2 license.
+It's based on Java 11 and the **[pac4j security engine](https://github.com/pac4j/pac4j) v5**. It's available under the Apache 2 license.
 
 [**Main concepts and components:**](http://www.pac4j.org/docs/main-concepts-and-components.html)
 
 1) A [**client**](http://www.pac4j.org/docs/clients.html) represents an authentication mechanism. It performs the login process and returns a user profile. 
 An indirect client is for UI authentication while a direct client is for web services authentication:
 
-&#9656; OAuth - SAML - CAS - OpenID Connect - HTTP - OpenID - Google App Engine - LDAP - SQL - JWT - MongoDB - Stormpath - IP address
+&#9656; OAuth - SAML - CAS - OpenID Connect - HTTP - Google App Engine - LDAP - SQL - JWT - MongoDB - Stormpath - IP address
 
 2) An [**authorizer**](http://www.pac4j.org/docs/authorizers.html) is meant to check authorizations on the authenticated user profile(s) or on the current web context:
 
 &#9656; Roles / permissions - Anonymous / remember-me / (fully) authenticated - Profile type, attribute -  CORS - CSRF - Security headers - IP address, HTTP method
 
-3) The `SecurityHandler` protects an url by checking that the user is authenticated and that the authorizations are valid, according to the clients and authorizers configuration. If the user is not authenticated, it performs authentication for direct clients or starts the login process for indirect clients
+3) A [**matcher**](http://www.pac4j.org/docs/matchers.html) defines whether the `SecurityHandler` must be applied and can be used for additional web processing
 
-4) The `CallbackHandler` finishes the login process for an indirect client
+4) The `SecurityHandler` protects an url by checking that the user is authenticated and that the authorizations are valid, according to the clients and authorizers configuration. If the user is not authenticated, it performs authentication for direct clients or starts the login process for indirect clients
 
-5) The `LogoutHandler` handles the logout process.
+5) The `CallbackHandler` finishes the login process for an indirect client
+
+6) The `LogoutHandler` handles the logout process.
 
 Just follow these easy steps to secure your Javalin application:
 
@@ -31,8 +32,8 @@ Just follow these easy steps to secure your Javalin application:
 
 You need to add a dependency for:
  
-- the `javalin-pac4j` library (<em>groupId</em>: **org.pac4j**, *version*: **3.0.0**)
-- the appropriate `pac4j` [submodules](http://www.pac4j.org/docs/clients.html) (<em>groupId</em>: **org.pac4j**, *version*: **4.0.0**): `pac4j-oauth` for OAuth support (Facebook, Twitter...), `pac4j-cas` for CAS support, `pac4j-ldap` for LDAP authentication, etc.
+- the `javalin-pac4j` library (<em>groupId</em>: **org.pac4j**, *version*: **4.0.0-SNAPSHOT**)
+- the appropriate `pac4j` [submodules](http://www.pac4j.org/docs/clients.html) (<em>groupId</em>: **org.pac4j**, *version*: **5.1.2**): `pac4j-oauth` for OAuth support (Facebook, Twitter...), `pac4j-cas` for CAS support, `pac4j-ldap` for LDAP authentication, etc.
 
 All released artifacts are available in the [Maven central repository](http://search.maven.org/#search%7Cga%7C1%7Cpac4j).
 
@@ -65,11 +66,7 @@ The [example app](https://github.com/pac4j/javalin-pac4j/blob/master/src/test/ja
 
 ## Need help?
 
-If you have any question, please use the following mailing lists:
-
-- [pac4j users](https://groups.google.com/forum/?hl=en#!forum/pac4j-users)
-- [pac4j developers](https://groups.google.com/forum/?hl=en#!forum/pac4j-dev)
-
+You can use the [mailing lists](http://www.pac4j.org/mailing-lists.html) or the [commercial support](http://www.pac4j.org/commercial-support.html).
 
 ## Development
 
