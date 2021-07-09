@@ -1,12 +1,14 @@
 package org.pac4j.javalin.example;
 
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.exception.CredentialsException;
 import org.pac4j.core.profile.CommonProfile;
 
-public class TrivialUserPassAuthenticator implements Authenticator<UsernamePasswordCredentials> {
+public class TrivialUserPassAuthenticator implements Authenticator {
     private final String testUsername;
     private final String testPassword;
 
@@ -16,7 +18,11 @@ public class TrivialUserPassAuthenticator implements Authenticator<UsernamePassw
     }
 
     @Override
-    public void validate(UsernamePasswordCredentials credentials, WebContext context) {
+    public void validate(Credentials creds, WebContext context, SessionStore sessionStore) {
+        if (creds instanceof UsernamePasswordCredentials == false) {
+            throw new CredentialsException("not a username password credential");
+        }
+        UsernamePasswordCredentials credentials = (UsernamePasswordCredentials) creds;
         if (testUsername.equals(credentials.getUsername()) && testPassword.equals(credentials.getPassword())) {
             CommonProfile profile = new CommonProfile();
             profile.setId(credentials.getUsername());

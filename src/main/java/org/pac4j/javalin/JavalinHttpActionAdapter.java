@@ -4,6 +4,7 @@ import io.javalin.http.BadRequestResponse;
 import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.UnauthorizedResponse;
 import org.pac4j.core.context.HttpConstants;
+import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.exception.http.WithContentAction;
 import org.pac4j.core.exception.http.WithLocationAction;
@@ -14,13 +15,17 @@ import org.pac4j.core.util.CommonHelper;
  * @author Maximilian Hippler
  * @since 3.0.0
  */
-public class JavalinHttpActionAdapter implements HttpActionAdapter<Void, JavalinWebContext> {
+public class JavalinHttpActionAdapter implements HttpActionAdapter {
     public static final JavalinHttpActionAdapter INSTANCE = new JavalinHttpActionAdapter();
 
     @Override
-    public Void adapt(HttpAction action, JavalinWebContext context) {
+    public Void adapt(HttpAction action, WebContext webContext) {
         CommonHelper.assertNotNull("action", action);
-        CommonHelper.assertNotNull("context", context);
+        CommonHelper.assertNotNull("context", webContext);
+        if (webContext instanceof JavalinWebContext == false) {
+            throw new RuntimeException("not a Javalin web context, but " + webContext.getClass().getName());
+        }
+        JavalinWebContext context = (JavalinWebContext) webContext;
 
         if(action instanceof WithContentAction){
             context.getJavalinCtx().status(action.getCode());

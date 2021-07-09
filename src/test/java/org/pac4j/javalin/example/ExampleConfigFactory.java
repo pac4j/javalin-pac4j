@@ -42,8 +42,8 @@ public class ExampleConfigFactory implements ConfigFactory {
         oidcConfiguration.setDiscoveryURI("https://accounts.google.com/.well-known/openid-configuration");
         oidcConfiguration.setUseNonce(true);
         oidcConfiguration.addCustomParam("prompt", "consent");
-        OidcClient<OidcConfiguration> oidcClient = new OidcClient<>(oidcConfiguration);
-        oidcClient.setAuthorizationGenerator((ctx, profile) -> {
+        OidcClient oidcClient = new OidcClient(oidcConfiguration);
+        oidcClient.setAuthorizationGenerator((ctx, sessionStore, profile) -> {
             profile.addRole("ROLE_ADMIN");
             return Optional.of(profile);
         });
@@ -79,7 +79,7 @@ public class ExampleConfigFactory implements ConfigFactory {
 
         // basic auth
         DirectBasicAuthClient directBasicAuthClient = new DirectBasicAuthClient(trivialUserPassAuthenticator);
-        HeaderClient headerClient = new HeaderClient("Authorization", (credentials, ctx) -> {
+        HeaderClient headerClient = new HeaderClient("Authorization", (credentials, ctx, sessionStore) -> {
             String token = ((TokenCredentials) credentials).getToken();
             if (CommonHelper.isNotBlank(token)) {
                 CommonProfile profile = new CommonProfile();
@@ -103,7 +103,7 @@ public class ExampleConfigFactory implements ConfigFactory {
         );
 
         Config config = new Config(clients);
-        config.addAuthorizer("admin", new RequireAnyRoleAuthorizer<>("ROLE_ADMIN"));
+        config.addAuthorizer("admin", new RequireAnyRoleAuthorizer("ROLE_ADMIN"));
         config.addAuthorizer("custom", new CustomAuthorizer());
         config.addMatcher("excludedPath", new PathMatcher().excludeRegex("^/facebook/notprotected$"));
         config.setHttpActionAdapter(new ExampleHttpActionAdapter());
