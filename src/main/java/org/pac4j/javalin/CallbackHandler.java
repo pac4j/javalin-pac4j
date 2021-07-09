@@ -14,7 +14,6 @@ import org.pac4j.core.util.FindBest;
 import static org.pac4j.core.util.CommonHelper.assertNotNull;
 
 public class CallbackHandler implements Handler {
-    public CallbackLogic callbackLogic;
     public Config config;
     public String defaultUrl;
     public Boolean renewSession;
@@ -28,6 +27,7 @@ public class CallbackHandler implements Handler {
     }
 
     public CallbackHandler(Config config, String defaultUrl, Boolean renewSession) {
+        assertNotNull("config", config);
         this.config = config;
         this.defaultUrl = defaultUrl;
         this.renewSession = renewSession;
@@ -37,9 +37,7 @@ public class CallbackHandler implements Handler {
     public void handle(@NotNull Context javalinCtx) {
         final SessionStore bestSessionStore = FindBest.sessionStore(null, config, JEESessionStore.INSTANCE);
         final HttpActionAdapter bestAdapter = FindBest.httpActionAdapter(null, config, JavalinHttpActionAdapter.INSTANCE);
-        final CallbackLogic bestCallbackLogic = FindBest.callbackLogic(callbackLogic, config, DefaultCallbackLogic.INSTANCE);
-
-        assertNotNull("config", config);
+        final CallbackLogic bestCallbackLogic = FindBest.callbackLogic(null, config, DefaultCallbackLogic.INSTANCE);
 
         JavalinWebContext context = new JavalinWebContext(javalinCtx);
         bestCallbackLogic.perform(context,

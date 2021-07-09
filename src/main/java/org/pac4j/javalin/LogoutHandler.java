@@ -14,7 +14,6 @@ import org.pac4j.core.util.FindBest;
 import static org.pac4j.core.util.CommonHelper.assertNotNull;
 
 public class LogoutHandler implements Handler {
-    public LogoutLogic logoutLogic;
     public Config config;
     public String defaultUrl;
     public String logoutUrlPattern;
@@ -31,6 +30,7 @@ public class LogoutHandler implements Handler {
     }
 
     public LogoutHandler(Config config, String defaultUrl, String logoutUrlPattern) {
+        assertNotNull("config", config);
         this.config = config;
         this.defaultUrl = defaultUrl;
         this.logoutUrlPattern = logoutUrlPattern;
@@ -40,9 +40,7 @@ public class LogoutHandler implements Handler {
     public void handle(@NotNull Context javalinCtx) {
         final SessionStore bestSessionStore = FindBest.sessionStore(null, config, JEESessionStore.INSTANCE);
         final HttpActionAdapter bestAdapter = FindBest.httpActionAdapter(null, config, JavalinHttpActionAdapter.INSTANCE);
-        final LogoutLogic bestLogic = FindBest.logoutLogic(logoutLogic, config, DefaultLogoutLogic.INSTANCE);
-
-        assertNotNull("config", config);
+        final LogoutLogic bestLogic = FindBest.logoutLogic(null, config, DefaultLogoutLogic.INSTANCE);
 
         bestLogic.perform(
             new JavalinWebContext(javalinCtx),
