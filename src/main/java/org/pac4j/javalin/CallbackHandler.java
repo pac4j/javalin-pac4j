@@ -46,7 +46,7 @@ public class CallbackHandler implements Handler {
                 bestAdapter,
                 this.defaultUrl,
                 this.renewSession,
-                "FormClient"
+                config.getClients().getClients().get(0).getName()
         );
     }
 }
