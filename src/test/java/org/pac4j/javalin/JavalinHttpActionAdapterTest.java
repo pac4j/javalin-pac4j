@@ -26,7 +26,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
-class JavalinHttpActionAdapterTests {
+class JavalinHttpActionAdapterTest {
 
     private HttpServletRequest req = mock(HttpServletRequest.class);
     private HttpServletResponse res = mock(HttpServletResponse.class);
