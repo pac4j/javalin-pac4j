@@ -53,7 +53,7 @@
     </developers>
 
     <properties>
-        <javalin.version>3.13.9</javalin.version>
+        <javalin.version>3.13.10</javalin.version>
         <pac4j.version>5.1.2</pac4j.version>
         <java.version>11</java.version>
     </properties>
