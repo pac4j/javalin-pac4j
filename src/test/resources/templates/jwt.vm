@@ -1,5 +1,0 @@
-#include("/templates/css.vm")
-<h1>Generate JWT token</h1>
-token: $token
-<hr>
-<a href="/" class="button">Back</a>
