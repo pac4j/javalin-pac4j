@@ -4,7 +4,6 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.ProfileManager;
@@ -12,6 +11,7 @@ import org.pac4j.core.profile.UserProfile;
 import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.javalin.CallbackHandler;
 import org.pac4j.javalin.JavalinHttpActionAdapter;
+import org.pac4j.javalin.JavalinSessionStore;
 import org.pac4j.javalin.JavalinWebContext;
 import org.pac4j.javalin.LogoutHandler;
 import org.pac4j.javalin.SecurityHandler;
@@ -125,7 +125,7 @@ public class JavalinPac4jExample {
 
     private static void jwt(Context ctx) {
         JavalinWebContext context = new JavalinWebContext(ctx);
-        ProfileManager manager = new ProfileManager(context, JEESessionStore.INSTANCE);
+        ProfileManager manager = new ProfileManager(context, JavalinSessionStore.INSTANCE);
         Optional<CommonProfile> profile = manager.getProfile(CommonProfile.class);
         String token = "";
         if (profile.isPresent()) {
@@ -148,7 +148,7 @@ public class JavalinPac4jExample {
     }
 
     private static List<UserProfile> getProfiles(Context ctx) {
-        return new ProfileManager(new JavalinWebContext(ctx), JEESessionStore.INSTANCE).getProfiles();
+        return new ProfileManager(new JavalinWebContext(ctx), JavalinSessionStore.INSTANCE).getProfiles();
     }
 
     private static void forceLogin(Context ctx, Config config) {
@@ -163,7 +163,7 @@ public class JavalinPac4jExample {
 
         HttpAction action;
         try {
-            action = (HttpAction) client.getRedirectionAction(context, JEESessionStore.INSTANCE).get();
+            action = client.getRedirectionAction(context, JavalinSessionStore.INSTANCE).get();
         } catch (HttpAction e) {
             action = e;
         }

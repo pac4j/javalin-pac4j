@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.engine.SecurityGrantedAccessAdapter;
 import org.pac4j.core.engine.SecurityLogic;
@@ -40,7 +39,7 @@ public class SecurityHandlerTest {
     public void testSessionStoreDefault() {
         handler.handle(ctx);
 
-        assertThat(securityLogic.sessionStore).isSameAs(JEESessionStore.INSTANCE);
+        assertThat(securityLogic.sessionStore).isSameAs(JavalinSessionStore.INSTANCE);
     }
 
     @Test

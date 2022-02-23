@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.engine.CallbackLogic;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
@@ -38,7 +37,7 @@ public class CallbackHandlerTest {
     public void testDefaultSessionStore() {
         handler.handle(ctx);
 
-        assertThat(testCallbackLogic.sessionStore).isEqualTo(JEESessionStore.INSTANCE);
+        assertThat(testCallbackLogic.sessionStore).isEqualTo(JavalinSessionStore.INSTANCE);
         assertThat(testCallbackLogic.webContext).isExactlyInstanceOf(JavalinWebContext.class);
         assertThat(testCallbackLogic.config).isSameAs(config);
     }
@@ -50,7 +49,7 @@ public class CallbackHandlerTest {
 
         handler.handle(ctx);
 
-        assertThat(testCallbackLogic.sessionStore).isNotEqualTo(JEESessionStore.INSTANCE);
+        assertThat(testCallbackLogic.sessionStore).isNotEqualTo(JavalinSessionStore.INSTANCE);
         assertThat(testCallbackLogic.sessionStore).isEqualTo(mockSessionStore);
     }
 

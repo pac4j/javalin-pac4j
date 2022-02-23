@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.engine.LogoutLogic;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
@@ -37,7 +36,7 @@ public class LogoutHandlerTest {
     public void testDefaultSessionStore() {
         handler.handle(ctx);
 
-        assertThat(logoutLogic.sessionStore).isSameAs(JEESessionStore.INSTANCE);
+        assertThat(logoutLogic.sessionStore).isSameAs(JavalinSessionStore.INSTANCE);
     }
 
     @Test

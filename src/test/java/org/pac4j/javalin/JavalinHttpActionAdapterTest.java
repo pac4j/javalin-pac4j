@@ -6,7 +6,7 @@ import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.RedirectResponse;
 import io.javalin.http.UnauthorizedResponse;
 import org.junit.jupiter.api.Test;
-import org.pac4j.core.context.JEEContext;
+import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.http.BadRequestAction;
 import org.pac4j.core.exception.http.ForbiddenAction;
 import org.pac4j.core.exception.http.FoundAction;
@@ -47,8 +47,8 @@ class JavalinHttpActionAdapterTest {
 
     @Test
     public void testContextNoJavalinWebContext() {
-        final JEEContext jeeContext = new JEEContext(req, res);
-        assertThatThrownBy(() -> JavalinHttpActionAdapter.INSTANCE.adapt(new OkAction(""), jeeContext))
+        final WebContext otherContext = mock( WebContext.class );
+        assertThatThrownBy(() -> JavalinHttpActionAdapter.INSTANCE.adapt(new OkAction(""), otherContext))
                 .hasMessageContaining("not a Javalin web context");
     }
 
