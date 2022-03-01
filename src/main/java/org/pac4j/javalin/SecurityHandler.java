@@ -15,7 +15,7 @@ import org.pac4j.core.util.FindBest;
 import static org.pac4j.core.util.CommonHelper.assertNotNull;
 
 public class SecurityHandler implements Handler {
-    private final String AUTH_GRANTED = "AUTH_GRANTED";
+    private static final String AUTH_GRANTED = "AUTH_GRANTED";
 
     public Config config;
     public String clients;

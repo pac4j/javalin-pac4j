@@ -213,26 +213,27 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.5</version>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>4.2.3</version>
                 <configuration>
                     <effort>Low</effort>
                     <threshold>Max</threshold>
                     <failOnError>true</failOnError>
+                    <excludeFilterFile>${basedir}/spotbugs-exclude.xml</excludeFilterFile>
                     <includeTests>true</includeTests>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>run-findbugs</id>
+                        <id>run-spotbugs</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
-            </plugin-->
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
@@ -257,7 +258,9 @@
                 <version>3.0.0-M5</version>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.2</version>
                 <configuration>
                     <archive>
                         <manifestEntries>
