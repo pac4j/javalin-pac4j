@@ -6,13 +6,13 @@ import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.RedirectResponse;
 import io.javalin.http.UnauthorizedResponse;
 import org.junit.jupiter.api.Test;
-import org.pac4j.core.context.JEEContext;
 import org.pac4j.core.exception.http.BadRequestAction;
 import org.pac4j.core.exception.http.ForbiddenAction;
 import org.pac4j.core.exception.http.FoundAction;
 import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.exception.http.OkAction;
 import org.pac4j.core.exception.http.UnauthorizedAction;
+import org.pac4j.jee.context.JEEContext;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

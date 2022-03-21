@@ -5,12 +5,12 @@ import io.javalin.http.Handler;
 import io.javalin.http.UnauthorizedResponse;
 import org.jetbrains.annotations.NotNull;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.engine.DefaultSecurityLogic;
 import org.pac4j.core.engine.SecurityLogic;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.core.util.FindBest;
+import org.pac4j.jee.context.session.JEESessionStore;
 
 import static org.pac4j.core.util.CommonHelper.assertNotNull;
 

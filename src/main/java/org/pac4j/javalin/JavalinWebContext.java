@@ -1,7 +1,7 @@
 package org.pac4j.javalin;
 
 import io.javalin.http.Context;
-import org.pac4j.core.context.JEEContext;
+import org.pac4j.jee.context.JEEContext;
 
 /**
  * @author Maximilian Hippler
