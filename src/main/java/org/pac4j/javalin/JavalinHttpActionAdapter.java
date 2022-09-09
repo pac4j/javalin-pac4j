@@ -27,24 +27,23 @@ public class JavalinHttpActionAdapter implements HttpActionAdapter {
         }
         JavalinWebContext context = (JavalinWebContext) webContext;
 
-        if(action instanceof WithContentAction){
+        final int code = action.getCode();
+        if (code == HttpConstants.UNAUTHORIZED) {
+            throw new UnauthorizedResponse();
+        } else if (code == HttpConstants.FORBIDDEN) {
+            throw new ForbiddenResponse();
+        } else if (code == HttpConstants.BAD_REQUEST) {
+            throw new BadRequestResponse();
+        } else if (action instanceof WithContentAction){
             context.getJavalinCtx().status(action.getCode());
             context.getJavalinCtx().result(((WithContentAction) action).getContent());
             return null;
         } else if (action instanceof WithLocationAction) {
             context.getJavalinCtx().redirect(((WithLocationAction) action).getLocation(), action.getCode());
             return null;
-        } else switch (action.getCode()) {
-            case HttpConstants.UNAUTHORIZED:
-                throw new UnauthorizedResponse();
-            case HttpConstants.FORBIDDEN:
-                throw new ForbiddenResponse();
-            case HttpConstants.BAD_REQUEST:
-                throw new BadRequestResponse();
-            default: {
-                context.getJavalinCtx().status(action.getCode());
-                return null;
-            }
+        } else {
+            context.getJavalinCtx().status(action.getCode());
+            return null;
         }
     }
 }
