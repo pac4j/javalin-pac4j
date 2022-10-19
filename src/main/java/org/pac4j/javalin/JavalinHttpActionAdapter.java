@@ -2,6 +2,8 @@ package org.pac4j.javalin;
 
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.ForbiddenResponse;
+import io.javalin.http.HttpStatus;
+import io.javalin.http.RedirectResponse;
 import io.javalin.http.UnauthorizedResponse;
 import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.WebContext;
@@ -39,8 +41,8 @@ public class JavalinHttpActionAdapter implements HttpActionAdapter {
             context.getJavalinCtx().result(((WithContentAction) action).getContent());
             return null;
         } else if (action instanceof WithLocationAction) {
-            context.getJavalinCtx().redirect(((WithLocationAction) action).getLocation(), action.getCode());
-            return null;
+            context.getJavalinCtx().redirect(((WithLocationAction) action).getLocation(), HttpStatus.forStatus(action.getCode()));
+            throw new RedirectResponse();
         } else {
             context.getJavalinCtx().status(action.getCode());
             return null;

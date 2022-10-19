@@ -1,6 +1,8 @@
 package org.pac4j.javalin;
 
 import io.javalin.http.Context;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pac4j.core.config.Config;
@@ -11,12 +13,9 @@ import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.jee.context.session.JEESessionStore;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Collections;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class LogoutHandlerTest {
 
@@ -26,11 +25,13 @@ public class LogoutHandlerTest {
     private final LogoutHandler handler = new LogoutHandler(config);
     private final HttpServletRequest req = mock(HttpServletRequest.class);
     private final HttpServletResponse res = mock(HttpServletResponse.class);
-    private final Context ctx = new Context(req, res, Collections.emptyMap());
+    private final Context ctx = mock(Context.class);
 
     @BeforeEach
     public void setCallbackLogic() {
         config.setLogoutLogic(logoutLogic);
+        when(ctx.res()).thenReturn(res);
+        when(ctx.req()).thenReturn(req);
     }
 
     @Test

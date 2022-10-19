@@ -2,6 +2,8 @@ package org.pac4j.javalin;
 
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pac4j.core.config.Config;
@@ -13,13 +15,10 @@ import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.jee.context.session.JEESessionStore;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Collections;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SecurityHandlerTest {
 
@@ -29,11 +28,13 @@ public class SecurityHandlerTest {
     private final SecurityHandler handler = new SecurityHandler(config, "my-clients");
     private final HttpServletRequest req = mock(HttpServletRequest.class);
     private final HttpServletResponse res = mock(HttpServletResponse.class);
-    private final Context ctx = new Context(req, res, Collections.emptyMap());
+    private final Context ctx = mock(Context.class);
 
     @BeforeEach
     public void setCallbackLogic() {
         config.setSecurityLogic(securityLogic);
+        when(ctx.res()).thenReturn(res);
+        when(ctx.req()).thenReturn(req);
     }
 
     @Test
