@@ -11,7 +11,7 @@ public class JavalinWebContext extends JEEContext {
     private final Context javalinCtx;
 
     public JavalinWebContext(Context javalinCtx) {
-        super(javalinCtx.req, javalinCtx.res);
+        super(javalinCtx.req(), javalinCtx.res());
         this.javalinCtx = javalinCtx;
     }
 

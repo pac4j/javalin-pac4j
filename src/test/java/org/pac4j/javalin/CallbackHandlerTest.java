@@ -1,6 +1,8 @@
 package org.pac4j.javalin;
 
 import io.javalin.http.Context;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pac4j.core.config.Config;
@@ -11,27 +13,26 @@ import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.jee.context.session.JEESessionStore;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Collections;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class CallbackHandlerTest {
 
     private final TestCallbackLogic testCallbackLogic = new TestCallbackLogic();
     private final HttpServletRequest req = mock(HttpServletRequest.class);
     private final HttpServletResponse res = mock(HttpServletResponse.class);
-    private final Context ctx = new Context(req, res, Collections.emptyMap());
+    private final Context ctx = mock(Context.class);
     private final FormClient formClient = new FormClient();
     private final Config config = new Config(formClient);
-    private final CallbackHandler handler = new CallbackHandler(config);
+    private final CallbackHandler handler = new CallbackHandler(config, "DefaultClient");
 
     @BeforeEach
     public void setCallbackLogic() {
         config.setCallbackLogic(testCallbackLogic);
         formClient.setCallbackUrl("http://example.org/callbackUrl");
+        when(ctx.res()).thenReturn(res);
+        when(ctx.req()).thenReturn(req);
     }
 
     @Test
@@ -85,7 +86,7 @@ public class CallbackHandlerTest {
     public void testCustomDefaultUrl() {
         final Config config = new Config(formClient);
         config.setCallbackLogic(testCallbackLogic);
-        final CallbackHandler handler = new CallbackHandler(config, "http://example.org", true);
+        final CallbackHandler handler = new CallbackHandler(config, "http://example.org",  true);
 
         handler.handle(ctx);
 

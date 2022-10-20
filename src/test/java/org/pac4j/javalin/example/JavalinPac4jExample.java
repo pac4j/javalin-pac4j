@@ -2,6 +2,7 @@ package org.pac4j.javalin.example;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.rendering.template.JavalinVelocity;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.exception.http.HttpAction;
@@ -26,7 +27,7 @@ import java.util.Optional;
 import static io.javalin.apibuilder.ApiBuilder.before;
 import static io.javalin.apibuilder.ApiBuilder.get;
 import static io.javalin.apibuilder.ApiBuilder.post;
-import static io.javalin.plugin.rendering.template.TemplateUtil.model;
+import static io.javalin.rendering.template.TemplateUtil.model;
 
 public class JavalinPac4jExample {
     private static final String JWT_SALT = "12345678901234567890123456789012";
@@ -38,6 +39,7 @@ public class JavalinPac4jExample {
         CallbackHandler callback = new CallbackHandler(config, null, true);
         SecurityHandler facebookSecurityHandler = new SecurityHandler(config, "FacebookClient", "", "excludedPath");
 
+        JavalinVelocity.init();
         Javalin.create()
                 .routes(() -> {
 
@@ -140,7 +142,7 @@ public class JavalinPac4jExample {
         if(client == null) throw new IllegalStateException("Client not found");
         FormClient formClient = (FormClient) client;
 
-        ctx.render("/templates/loginForm.vm", model("callbackUrl", formClient.getCallbackUrl()));
+        ctx.render("/templates/loginForm.vm", model("callbackUrl", formClient.getCallbackUrl() + "?client_name=FormClient"));
     }
 
     private static void protectedPage(Context ctx) {
