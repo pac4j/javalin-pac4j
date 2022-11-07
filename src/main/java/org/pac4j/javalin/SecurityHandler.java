@@ -2,7 +2,7 @@ package org.pac4j.javalin;
 
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import io.javalin.http.UnauthorizedResponse;
+import io.javalin.http.servlet.JavalinServletContext;
 import org.jetbrains.annotations.NotNull;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.session.SessionStore;
@@ -56,7 +56,7 @@ public class SecurityHandler implements Handler {
             this.matchers
         );
         if (result != AUTH_GRANTED) {
-            throw new UnauthorizedResponse();
+            ((JavalinServletContext) javalinCtx).getTasks().clear(); // Used to throw UnauthorizedResponse
         }
     }
 }

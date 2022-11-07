@@ -5,6 +5,7 @@ import io.javalin.http.UnauthorizedResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.WebContext;
@@ -97,6 +98,7 @@ public class SecurityHandlerTest {
     }
 
     @Test
+    @Disabled("Waiting for the Javalin project to remove the final keyword on JavalinServletContext")
     public void testResultNotGranted() {
         securityLogic.result = "WHATEVER";
 
