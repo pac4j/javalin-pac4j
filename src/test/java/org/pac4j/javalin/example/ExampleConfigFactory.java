@@ -8,6 +8,7 @@ import org.pac4j.core.client.direct.AnonymousClient;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.config.ConfigFactory;
 import org.pac4j.core.credentials.TokenCredentials;
+import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.matching.matcher.PathMatcher;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.util.CommonHelper;
@@ -79,13 +80,15 @@ public class ExampleConfigFactory implements ConfigFactory {
 
         // basic auth
         DirectBasicAuthClient directBasicAuthClient = new DirectBasicAuthClient(trivialUserPassAuthenticator);
-        HeaderClient headerClient = new HeaderClient("Authorization", (credentials, ctx, sessionStore) -> {
+        HeaderClient headerClient = new HeaderClient("Authorization", (Authenticator) (credentials, ctx, sessionStore) -> {
             String token = ((TokenCredentials) credentials).getToken();
             if (CommonHelper.isNotBlank(token)) {
                 CommonProfile profile = new CommonProfile();
                 profile.setId(token);
                 credentials.setUserProfile(profile);
+                return Optional.of(credentials);
             }
+            return Optional.empty();
         });
 
         Clients clients = new Clients("http://localhost:8080/callback",

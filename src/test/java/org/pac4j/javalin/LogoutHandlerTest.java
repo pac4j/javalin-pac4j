@@ -44,7 +44,7 @@ public class LogoutHandlerTest {
     @Test
     public void testCustomSessionStore() {
         final SessionStore mockSessionStore = mock(SessionStore.class);
-        config.setSessionStore(mockSessionStore);
+        config.setSessionStoreFactory(parameters -> mockSessionStore);
 
         handler.handle(ctx);
 
@@ -147,7 +147,7 @@ public class LogoutHandlerTest {
         assertThat(logoutLogic.centralLogout).isFalse();
     }
 
-    public class TestLogoutLogic implements LogoutLogic {
+    public static class TestLogoutLogic implements LogoutLogic {
 
         private WebContext context;
         private SessionStore sessionStore;

@@ -47,7 +47,7 @@ public class CallbackHandlerTest {
     @Test
     public void testCustomSessionStore() {
         final SessionStore mockSessionStore = mock(SessionStore.class);
-        config.setSessionStore(mockSessionStore);
+        config.setSessionStoreFactory(parameters -> mockSessionStore);
 
         handler.handle(ctx);
 
@@ -122,7 +122,7 @@ public class CallbackHandlerTest {
         assertThat(testCallbackLogic.renewSession).isFalse();
     }
 
-    public class TestCallbackLogic implements CallbackLogic {
+    public static class TestCallbackLogic implements CallbackLogic {
 
         private WebContext webContext;
         private SessionStore sessionStore;

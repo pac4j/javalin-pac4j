@@ -54,8 +54,8 @@
 
     <properties>
         <javalin.version>5.2.0</javalin.version>
-        <pac4j.version>5.7.0</pac4j.version>
-        <java.version>11</java.version>
+        <pac4j.version>6.0.0-RC1</pac4j.version>
+        <java.version>17</java.version>
     </properties>
 
     <dependencies>
