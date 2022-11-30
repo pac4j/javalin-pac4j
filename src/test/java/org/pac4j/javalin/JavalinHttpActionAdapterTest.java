@@ -81,19 +81,19 @@ class JavalinHttpActionAdapterTest {
 
     @Test
     public void testAdapterUnauthorized() {
-        assertThatThrownBy(() -> JavalinHttpActionAdapter.INSTANCE.adapt(UnauthorizedAction.INSTANCE, context))
+        assertThatThrownBy(() -> JavalinHttpActionAdapter.INSTANCE.adapt(new UnauthorizedAction(), context))
                 .isExactlyInstanceOf(UnauthorizedResponse.class);
     }
 
     @Test
     public void testAdapterForbidden() {
-        assertThatThrownBy(() -> JavalinHttpActionAdapter.INSTANCE.adapt(ForbiddenAction.INSTANCE, context))
+        assertThatThrownBy(() -> JavalinHttpActionAdapter.INSTANCE.adapt(new ForbiddenAction(), context))
                 .isExactlyInstanceOf(ForbiddenResponse.class);
     }
 
     @Test
     public void testAdapterBadRequest() {
-        assertThatThrownBy(() -> JavalinHttpActionAdapter.INSTANCE.adapt(BadRequestAction.INSTANCE, context))
+        assertThatThrownBy(() -> JavalinHttpActionAdapter.INSTANCE.adapt(new BadRequestAction(), context))
                 .isExactlyInstanceOf(BadRequestResponse.class);
     }
 

@@ -48,7 +48,7 @@ public class SecurityHandlerTest {
     @Test
     public void testSessionStoreCustom() {
         final SessionStore mockSessionStore = mock(SessionStore.class);
-        config.setSessionStore(mockSessionStore);
+        config.setSessionStoreFactory(parameters -> mockSessionStore);
 
         handler.handle(ctx);
 
@@ -105,7 +105,7 @@ public class SecurityHandlerTest {
         assertThatThrownBy(() -> handler.handle(ctx)).isExactlyInstanceOf(UnauthorizedResponse.class);
     }
 
-    private final class TestSecurityLogic implements SecurityLogic {
+    private static final class TestSecurityLogic implements SecurityLogic {
 
         private String result = "AUTH_GRANTED";
         private WebContext context;

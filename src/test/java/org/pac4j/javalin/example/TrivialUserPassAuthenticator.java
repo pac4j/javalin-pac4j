@@ -8,6 +8,8 @@ import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.exception.CredentialsException;
 import org.pac4j.core.profile.CommonProfile;
 
+import java.util.Optional;
+
 public class TrivialUserPassAuthenticator implements Authenticator {
     private final String testUsername;
     private final String testPassword;
@@ -18,7 +20,7 @@ public class TrivialUserPassAuthenticator implements Authenticator {
     }
 
     @Override
-    public void validate(Credentials creds, WebContext context, SessionStore sessionStore) {
+    public Optional<Credentials> validate(Credentials creds, WebContext context, SessionStore sessionStore) {
         if (creds instanceof UsernamePasswordCredentials == false) {
             throw new CredentialsException("not a username password credential");
         }
@@ -28,6 +30,7 @@ public class TrivialUserPassAuthenticator implements Authenticator {
             profile.setId(credentials.getUsername());
             profile.addAttribute("username", credentials.getUsername());
             credentials.setUserProfile(profile);
+            return Optional.of(credentials);
         } else {
             throw new CredentialsException("Invalid credentials");
         }
