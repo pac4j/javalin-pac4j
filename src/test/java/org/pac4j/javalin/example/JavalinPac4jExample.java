@@ -5,6 +5,8 @@ import io.javalin.http.Context;
 import io.javalin.rendering.template.JavalinVelocity;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.config.Config;
+import org.pac4j.core.context.CallContext;
+import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.ProfileManager;
@@ -12,9 +14,10 @@ import org.pac4j.core.profile.UserProfile;
 import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.javalin.CallbackHandler;
 import org.pac4j.javalin.JavalinHttpActionAdapter;
-import org.pac4j.javalin.JavalinWebContext;
 import org.pac4j.javalin.LogoutHandler;
 import org.pac4j.javalin.SecurityHandler;
+import org.pac4j.jee.context.JEEContext;
+import org.pac4j.jee.context.JEEFrameworkParameters;
 import org.pac4j.jee.context.session.JEESessionStore;
 import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
 import org.pac4j.jwt.profile.JwtGenerator;
@@ -35,7 +38,7 @@ public class JavalinPac4jExample {
 
     public static void main(String[] args) {
 
-        Config config = new ExampleConfigFactory(JWT_SALT).build();
+        final Config config = new ExampleConfigFactory(JWT_SALT).build();
         CallbackHandler callback = new CallbackHandler(config, null, true);
         SecurityHandler facebookSecurityHandler = new SecurityHandler(config, "FacebookClient", "", "excludedPath");
 
@@ -43,48 +46,48 @@ public class JavalinPac4jExample {
         Javalin.create()
                 .routes(() -> {
 
-                    get("/", JavalinPac4jExample::index);
+                    get("/", ctx -> index(ctx, config));
                     get("/callback", callback);
                     post("/callback", callback);
 
                     before("/facebook", facebookSecurityHandler);
-                    get("/facebook", JavalinPac4jExample::protectedPage);
+                    get("/facebook", ctx -> protectedPage(ctx, config));
 
                     before("/facebook/*", facebookSecurityHandler);
-                    get("/facebook/notprotected", JavalinPac4jExample::protectedPage); // excluded in ExampleConfigFactory
+                    get("/facebook/notprotected", ctx -> protectedPage(ctx, config)); // excluded in ExampleConfigFactory
 
                     before("/facebookadmin", new SecurityHandler(config, "FacebookClient", "admin"));
-                    get("/facebookadmin", JavalinPac4jExample::protectedPage);
+                    get("/facebookadmin", ctx -> protectedPage(ctx, config));
 
                     before("/facebookcustom", new SecurityHandler(config, "FacebookClient", "custom"));
-                    get("/facebookcustom", JavalinPac4jExample::protectedPage);
+                    get("/facebookcustom", ctx -> protectedPage(ctx, config));
 
                     before("/twitter", new SecurityHandler(config, "TwitterClient,FacebookClient"));
-                    get("/twitter", JavalinPac4jExample::protectedPage);
+                    get("/twitter", ctx -> protectedPage(ctx, config));
 
                     before("/form", new SecurityHandler(config, "FormClient"));
-                    get("/form", JavalinPac4jExample::protectedPage);
+                    get("/form", ctx -> protectedPage(ctx, config));
 
                     before("/basicauth", new SecurityHandler(config, "IndirectBasicAuthClient"));
-                    get("/basicauth", JavalinPac4jExample::protectedPage);
+                    get("/basicauth", ctx -> protectedPage(ctx, config));
 
                     before("/cas", new SecurityHandler(config, "CasClient"));
-                    get("/cas", JavalinPac4jExample::protectedPage);
+                    get("/cas", ctx -> protectedPage(ctx, config));
 
                     before("/saml2", new SecurityHandler(config, "SAML2Client"));
-                    get("/saml2", JavalinPac4jExample::protectedPage);
+                    get("/saml2", ctx -> protectedPage(ctx, config));
 
                     before("/oidc", new SecurityHandler(config, "OidcClient"));
-                    get("/oidc", JavalinPac4jExample::protectedPage);
+                    get("/oidc", ctx -> protectedPage(ctx, config));
 
                     before("/protected", new SecurityHandler(config, null));
-                    get("/protected", JavalinPac4jExample::protectedPage);
+                    get("/protected", ctx -> protectedPage(ctx, config));
 
                     before("/dba", new SecurityHandler(config, "DirectBasicAuthClient,ParameterClient"));
-                    get("/dba", JavalinPac4jExample::protectedPage);
+                    get("/dba", ctx -> protectedPage(ctx, config));
 
                     before("/rest-jwt", new SecurityHandler(config, "ParameterClient"));
-                    get("/rest-jwt", JavalinPac4jExample::protectedPage);
+                    get("/rest-jwt", ctx -> protectedPage(ctx, config));
 
                     get("/jwt", JavalinPac4jExample::jwt);
 
@@ -95,14 +98,13 @@ public class JavalinPac4jExample {
                     before("/body", new SecurityHandler(config, "HeaderClient"));
                     post("/body", ctx -> {
                         logger.debug("Body: " + ctx.body());
-                        ctx.result("done: " + getProfiles(ctx));
+                        ctx.result("done: " + getProfiles(ctx, config));
                     });
 
                 }).exception(Exception.class, (e, ctx) -> {
             logger.error("Unexpected exception", e);
             ctx.result(e.toString());
         }).start(8080);
-
     }
 
     private static LogoutHandler centralLogoutHandler(Config config) {
@@ -121,13 +123,12 @@ public class JavalinPac4jExample {
         return localLogout;
     }
 
-    private static void index(Context ctx) {
-        ctx.render("/templates/index.vm", model("profiles", getProfiles(ctx)));
+    private static void index(Context ctx, Config config) {
+        ctx.render("/templates/index.vm", model("profiles", getProfiles(ctx, config)));
     }
 
     private static void jwt(Context ctx) {
-        JavalinWebContext context = new JavalinWebContext(ctx);
-        ProfileManager manager = new ProfileManager(context, JEESessionStore.INSTANCE);
+        ProfileManager manager = new ProfileManager(new JEEContext(ctx.req(), ctx.res()), JEESessionStore.INSTANCE);
         Optional<CommonProfile> profile = manager.getProfile(CommonProfile.class);
         String token = "";
         if (profile.isPresent()) {
@@ -145,18 +146,20 @@ public class JavalinPac4jExample {
         ctx.render("/templates/loginForm.vm", model("callbackUrl", formClient.getCallbackUrl() + "?client_name=FormClient"));
     }
 
-    private static void protectedPage(Context ctx) {
-        ctx.render("/templates/protectedPage.vm", model("profiles", getProfiles(ctx)));
+    private static void protectedPage(Context ctx, Config config) {
+        ctx.render("/templates/protectedPage.vm", model("profiles", getProfiles(ctx, config)));
     }
 
-    private static List<UserProfile> getProfiles(Context ctx) {
-        return new ProfileManager(new JavalinWebContext(ctx), JEESessionStore.INSTANCE).getProfiles();
+    private static List<UserProfile> getProfiles(Context ctx, Config config) {
+        JEEFrameworkParameters parameters = new JEEFrameworkParameters(ctx.req(), ctx.res());
+        return config.getProfileManagerFactory().apply(
+                config.getWebContextFactory().newContext(parameters),
+                config.getSessionStoreFactory().newSessionStore(parameters)
+        ).getProfiles();
     }
 
     private static void forceLogin(Context ctx, Config config) {
-        JavalinWebContext context = new JavalinWebContext(ctx);
-
-
+        WebContext context = config.getWebContextFactory().newContext(new JEEFrameworkParameters(ctx.req(), ctx.res()));
         String clientName = context.getRequestParameter("FormClient").orElse(null);
         if(clientName == null) throw new IllegalStateException("Client name not found");
 
@@ -165,7 +168,7 @@ public class JavalinPac4jExample {
 
         HttpAction action;
         try {
-            action = (HttpAction) client.getRedirectionAction(context, JEESessionStore.INSTANCE).get();
+            action = client.getRedirectionAction(new CallContext(context, JEESessionStore.INSTANCE)).get();
         } catch (HttpAction e) {
             action = e;
         }

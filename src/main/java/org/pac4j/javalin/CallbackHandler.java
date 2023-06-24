@@ -4,13 +4,9 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.core.context.session.SessionStoreFactory;
 import org.pac4j.core.engine.CallbackLogic;
 import org.pac4j.core.engine.DefaultCallbackLogic;
-import org.pac4j.core.http.adapter.HttpActionAdapter;
-import org.pac4j.core.util.FindBest;
-import org.pac4j.jee.context.session.JEESessionStoreFactory;
+import org.pac4j.jee.context.JEEFrameworkParameters;
 
 import static org.pac4j.core.util.CommonHelper.assertNotNull;
 
@@ -36,19 +32,20 @@ public class CallbackHandler implements Handler {
 
     @Override
     public void handle(@NotNull Context javalinCtx) {
-        final SessionStoreFactory sessionStoreFactory = FindBest.sessionStoreFactory(null, config, JEESessionStoreFactory.INSTANCE);
-        final SessionStore sessionStore = sessionStoreFactory.newSessionStore(javalinCtx);
-        final HttpActionAdapter bestAdapter = FindBest.httpActionAdapter(null, config, JavalinHttpActionAdapter.INSTANCE);
-        final CallbackLogic bestCallbackLogic = FindBest.callbackLogic(null, config, DefaultCallbackLogic.INSTANCE);
+        final CallbackLogic callbackLogic;
+        if (config.getCallbackLogic() != null) {
+            callbackLogic = config.getCallbackLogic();
+        } else {
+            callbackLogic = DefaultCallbackLogic.INSTANCE;
+        }
 
-        JavalinWebContext context = new JavalinWebContext(javalinCtx);
-        bestCallbackLogic.perform(context,
-                sessionStore,
+        callbackLogic.perform(
                 this.config,
-                bestAdapter,
                 this.defaultUrl,
                 this.renewSession,
-                config.getClients().getClients().get(0).getName()
+                config.getClients().getClients().get(0).getName(),
+                new JEEFrameworkParameters(javalinCtx.req(), javalinCtx.res())
         );
+
     }
 }

@@ -1,7 +1,6 @@
 package org.pac4j.javalin.example;
 
-import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
@@ -20,7 +19,7 @@ public class TrivialUserPassAuthenticator implements Authenticator {
     }
 
     @Override
-    public Optional<Credentials> validate(Credentials creds, WebContext context, SessionStore sessionStore) {
+    public Optional<Credentials> validate(CallContext ctx, Credentials creds) {
         if (creds instanceof UsernamePasswordCredentials == false) {
             throw new CredentialsException("not a username password credential");
         }

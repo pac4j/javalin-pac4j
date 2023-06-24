@@ -1,134 +1,70 @@
 package org.pac4j.javalin;
 
-import io.javalin.http.Context;
-import io.javalin.http.UnauthorizedResponse;
+import io.javalin.http.servlet.JavalinServletContext;
+import io.javalin.http.servlet.Task;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.core.engine.SecurityGrantedAccessAdapter;
 import org.pac4j.core.engine.SecurityLogic;
-import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.http.client.indirect.FormClient;
-import org.pac4j.jee.context.session.JEESessionStore;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import java.util.Deque;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 public class SecurityHandlerTest {
 
-    private final TestSecurityLogic securityLogic = new TestSecurityLogic();
-    private final FormClient formClient = new FormClient();
-    private final Config config = new Config(formClient);
-    private final SecurityHandler handler = new SecurityHandler(config, "my-clients");
+    private final SecurityLogic securityLogic = mock(SecurityLogic.class);
+    private final Config config = new Config(new FormClient());
     private final HttpServletRequest req = mock(HttpServletRequest.class);
     private final HttpServletResponse res = mock(HttpServletResponse.class);
-    private final Context ctx = mock(Context.class);
+    private final JavalinServletContext ctx = mock(JavalinServletContext.class);
+    private final Deque<Task> deque = mock(Deque.class);
 
     @BeforeEach
     public void setCallbackLogic() {
         config.setSecurityLogic(securityLogic);
         when(ctx.res()).thenReturn(res);
         when(ctx.req()).thenReturn(req);
+        when(ctx.getTasks()).thenReturn(deque);
+        when(securityLogic.perform(eq(config), any(), any(), any(), any(), any())).thenReturn("AUTH_GRANTED");
     }
 
     @Test
-    public void testSessionStoreDefault() {
+    public void testCustomSecurityLogic() {
+        SecurityHandler handler = new SecurityHandler(config, "my-clients");
         handler.handle(ctx);
 
-        assertThat(securityLogic.sessionStore).isSameAs(JEESessionStore.INSTANCE);
-    }
-
-    @Test
-    public void testSessionStoreCustom() {
-        final SessionStore mockSessionStore = mock(SessionStore.class);
-        config.setSessionStoreFactory(parameters -> mockSessionStore);
-
-        handler.handle(ctx);
-
-        assertThat(securityLogic.sessionStore).isSameAs(mockSessionStore);
-    }
-
-    @Test
-    public void testHttpAdapterDefault() {
-        handler.handle(ctx);
-
-        assertThat(securityLogic.httpActionAdapter).isSameAs(JavalinHttpActionAdapter.INSTANCE);
-    }
-
-    @Test
-    public void testHttpAdapterCustom() {
-        final JavalinHttpActionAdapter adapter = new JavalinHttpActionAdapter();
-        config.setHttpActionAdapter(adapter);
-
-        handler.handle(ctx);
-
-        assertThat(securityLogic.httpActionAdapter).isSameAs(adapter);
-    }
-
-    @Test
-    public void testClients() {
-        handler.handle(ctx);
-
-        assertThat(securityLogic.clients).isEqualTo("my-clients");
+        verify(securityLogic).perform(eq(config), any(), eq("my-clients"), any(), any(), any());
     }
 
     @Test
     public void testCustomAuthorizers() {
-        handler.authorizers = "my-authorizers";
-
+        SecurityHandler handler = new SecurityHandler(config, "my-clients", "my-authorizers");
         handler.handle(ctx);
 
-        assertThat(securityLogic.authorizers).isEqualTo("my-authorizers");
+        verify(securityLogic).perform(eq(config), any(), any(), eq("my-authorizers"), any(), any());
     }
 
     @Test
     public void testCustomMatchers() {
-        handler.matchers = "my-matchers";
-
+        SecurityHandler handler = new SecurityHandler(config, "my-clients", "my-authorizers", "my-matchers");
         handler.handle(ctx);
 
-        assertThat(securityLogic.matchers).isEqualTo("my-matchers");
+        verify(securityLogic).perform(eq(config), any(), any(), eq("my-authorizers"), eq("my-matchers"), any());
     }
 
     @Test
-    @Disabled("Waiting for the Javalin project to remove the final keyword on JavalinServletContext")
-    public void testResultNotGranted() {
-        securityLogic.result = "WHATEVER";
+    public void clearTasksWhenAuthNotGranted() {
+        when(securityLogic.perform(eq(config), any(), any(), any(), any(), any())).thenReturn("AUTH_DENIED");
 
-        assertThatThrownBy(() -> handler.handle(ctx)).isExactlyInstanceOf(UnauthorizedResponse.class);
-    }
+        SecurityHandler handler = new SecurityHandler(config, "my-clients");
+        handler.handle(ctx);
 
-    private static final class TestSecurityLogic implements SecurityLogic {
-
-        private String result = "AUTH_GRANTED";
-        private WebContext context;
-        private SessionStore sessionStore;
-        private Config config;
-        private SecurityGrantedAccessAdapter securityGrantedAccessAdapter;
-        private HttpActionAdapter httpActionAdapter;
-        private String clients;
-        private String authorizers;
-        private String matchers;
-
-        @Override
-        public Object perform(WebContext context, SessionStore sessionStore, Config config, SecurityGrantedAccessAdapter securityGrantedAccessAdapter, HttpActionAdapter httpActionAdapter, String clients, String authorizers, String matchers, Object... parameters) {
-            this.context = context;
-            this.sessionStore = sessionStore;
-            this.config = config;
-            this.securityGrantedAccessAdapter = securityGrantedAccessAdapter;
-            this.httpActionAdapter = httpActionAdapter;
-            this.clients = clients;
-            this.authorizers = authorizers;
-            this.matchers = matchers;
-
-            return result;
-        }
+        verify(ctx).getTasks();
+        verify(deque).clear();
     }
 }

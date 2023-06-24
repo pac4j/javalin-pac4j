@@ -5,24 +5,21 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.context.FrameworkParameters;
 import org.pac4j.core.engine.LogoutLogic;
-import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.http.client.indirect.FormClient;
-import org.pac4j.jee.context.session.JEESessionStore;
+import org.pac4j.jee.context.JEEFrameworkParameters;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 public class LogoutHandlerTest {
 
-    private final TestLogoutLogic logoutLogic = new TestLogoutLogic();
-    private final FormClient formClient = new FormClient();
-    private final Config config = new Config(formClient);
-    private final LogoutHandler handler = new LogoutHandler(config);
+    private final LogoutLogic logoutLogic = mock(LogoutLogic.class);
+    private final Config config = new Config(new FormClient());
     private final HttpServletRequest req = mock(HttpServletRequest.class);
     private final HttpServletResponse res = mock(HttpServletResponse.class);
     private final Context ctx = mock(Context.class);
@@ -35,144 +32,95 @@ public class LogoutHandlerTest {
     }
 
     @Test
-    public void testDefaultSessionStore() {
+    public void testCustomLogoutLogic() {
+        LogoutHandler handler = new LogoutHandler(config);
         handler.handle(ctx);
 
-        assertThat(logoutLogic.sessionStore).isSameAs(JEESessionStore.INSTANCE);
+        verify(logoutLogic).perform(any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
-    public void testCustomSessionStore() {
-        final SessionStore mockSessionStore = mock(SessionStore.class);
-        config.setSessionStoreFactory(parameters -> mockSessionStore);
-
+    public void testDefaultUrl() {
+        LogoutHandler handler = new LogoutHandler(config, "https://example.org");
         handler.handle(ctx);
 
-        assertThat(logoutLogic.sessionStore).isSameAs(mockSessionStore);
+        verify(logoutLogic).perform(any(), eq("https://example.org"), any(), any(), any(), any(), any());
     }
 
     @Test
-    public void testDefaultHttpActionAdapter() {
+    public void testLogoutUrlPattern() {
+        LogoutHandler handler = new LogoutHandler(config, "https://example.org", "/logout");
         handler.handle(ctx);
 
-        assertThat(logoutLogic.httpActionAdapter).isSameAs(JavalinHttpActionAdapter.INSTANCE);
-    }
-
-    @Test
-    public void testCustomHttpActionAdapter() {
-        final JavalinHttpActionAdapter adapter = new JavalinHttpActionAdapter();
-        config.setHttpActionAdapter(adapter);
-
-        handler.handle(ctx);
-
-        assertThat(logoutLogic.httpActionAdapter).isSameAs(adapter);
-    }
-
-    @Test
-    public void testCustomDefaultUrl() {
-        LogoutHandler handler = new LogoutHandler(config, "http://example.org");
-
-        handler.handle(ctx);
-
-        assertThat(logoutLogic.defaultUrl).isEqualTo("http://example.org");
-    }
-
-    @Test
-    public void testCustomLogoutUrlPattern() {
-        final String logoutUrlPattern = "http://example.org/logout/*";
-        LogoutHandler handler = new LogoutHandler(config, "http://example.org", logoutUrlPattern);
-
-        handler.handle(ctx);
-
-        assertThat(logoutLogic.logoutUrlPattern).isEqualTo(logoutUrlPattern);
-    }
-
-    @Test
-    public void testLocalLogoutDefault() {
-        handler.handle(ctx);
-        assertThat(logoutLogic.localLogout).isNull();
+        verify(logoutLogic).perform(any(), eq("https://example.org"), eq("/logout"), any(), any(), any(), any());
     }
 
     @Test
     public void testLocalLogoutTrue() {
+        LogoutHandler handler = new LogoutHandler(config);
         handler.localLogout = true;
         handler.handle(ctx);
-        assertThat(logoutLogic.localLogout).isTrue();
+
+        verify(logoutLogic).perform(any(), any(), any(), eq(true), any(), any(), any());
     }
 
     @Test
     public void testLocalLogoutFalse() {
+        LogoutHandler handler = new LogoutHandler(config);
         handler.localLogout = false;
         handler.handle(ctx);
-        assertThat(logoutLogic.localLogout).isFalse();
+
+        verify(logoutLogic).perform(any(), any(), any(), eq(false), any(), any(), any());
     }
 
     @Test
-    public void testDestroySessionDefault() {
-        handler.handle(ctx);
-        assertThat(logoutLogic.destroySession).isNull();
-    }
-
-    @Test
-    public void testDestroySessionTrue() {
+    public void testDestroySession() {
+        LogoutHandler handler = new LogoutHandler(config);
         handler.destroySession = true;
         handler.handle(ctx);
-        assertThat(logoutLogic.destroySession).isTrue();
+
+        verify(logoutLogic).perform(any(), any(), any(),any(), eq(true), any(), any());
     }
 
     @Test
     public void testDestroySessionFalse() {
+        LogoutHandler handler = new LogoutHandler(config);
         handler.destroySession = false;
         handler.handle(ctx);
-        assertThat(logoutLogic.destroySession).isFalse();
+
+        verify(logoutLogic).perform(any(), any(), any(),any(), eq(false), any(), any());
     }
 
     @Test
-    public void testCentralLogoutDefault() {
-        handler.handle(ctx);
-        assertThat(logoutLogic.centralLogout).isNull();
-    }
-
-    @Test
-    public void testCentralLogoutTrue() {
+    public void testCentralLogout() {
+        LogoutHandler handler = new LogoutHandler(config);
         handler.centralLogout = true;
         handler.handle(ctx);
-        assertThat(logoutLogic.centralLogout).isTrue();
+
+        verify(logoutLogic).perform(any(), any(), any(),any(), any(), eq(true), any());
     }
 
     @Test
     public void testCentralLogoutFalse() {
+        LogoutHandler handler = new LogoutHandler(config);
         handler.centralLogout = false;
         handler.handle(ctx);
-        assertThat(logoutLogic.centralLogout).isFalse();
+
+        verify(logoutLogic).perform(any(), any(), any(),any(), any(), eq(false), any());
     }
 
-    public static class TestLogoutLogic implements LogoutLogic {
+    @Test
+    public void testContext() {
+        LogoutHandler handler = new LogoutHandler(config);
+        handler.handle(ctx);
 
-        private WebContext context;
-        private SessionStore sessionStore;
-        private Config config;
-        private HttpActionAdapter httpActionAdapter;
-        private String defaultUrl;
-        private String logoutUrlPattern;
-        private Boolean localLogout;
-        private Boolean destroySession;
-        private Boolean centralLogout;
+        ArgumentCaptor<FrameworkParameters> captor = ArgumentCaptor.forClass(FrameworkParameters.class);
+        verify(logoutLogic).perform(any(), any(), any(), any(), any(), any(), captor.capture());
+        FrameworkParameters parameters = captor.getValue();
+        assertThat(parameters).isExactlyInstanceOf(JEEFrameworkParameters.class);
 
-        @Override
-        public Object perform(WebContext context, SessionStore sessionStore, Config config, HttpActionAdapter httpActionAdapter,
-                              String defaultUrl, String logoutUrlPattern,
-                              Boolean localLogout, Boolean destroySession, Boolean centralLogout) {
-            this.context = context;
-            this.sessionStore = sessionStore;
-            this.config = config;
-            this.httpActionAdapter = httpActionAdapter;
-            this.defaultUrl = defaultUrl;
-            this.logoutUrlPattern = logoutUrlPattern;
-            this.localLogout = localLogout;
-            this.destroySession = destroySession;
-            this.centralLogout = centralLogout;
-            return null;
-        }
+        JEEFrameworkParameters jeeFrameworkParameters = (JEEFrameworkParameters) parameters;
+        assertThat(jeeFrameworkParameters.getRequest()).isSameAs(req);
+        assertThat(jeeFrameworkParameters.getResponse()).isSameAs(res);
     }
 }
