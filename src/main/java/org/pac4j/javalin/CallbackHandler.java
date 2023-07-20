@@ -3,9 +3,8 @@ package org.pac4j.javalin;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
+import org.pac4j.core.adapter.FrameworkAdapter;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.engine.CallbackLogic;
-import org.pac4j.core.engine.DefaultCallbackLogic;
 import org.pac4j.jee.context.JEEFrameworkParameters;
 
 import static org.pac4j.core.util.CommonHelper.assertNotNull;
@@ -32,14 +31,9 @@ public class CallbackHandler implements Handler {
 
     @Override
     public void handle(@NotNull Context javalinCtx) {
-        final CallbackLogic callbackLogic;
-        if (config.getCallbackLogic() != null) {
-            callbackLogic = config.getCallbackLogic();
-        } else {
-            callbackLogic = DefaultCallbackLogic.INSTANCE;
-        }
+        FrameworkAdapter.INSTANCE.applyDefaultSettingsIfUndefined(config);
 
-        callbackLogic.perform(
+        config.getCallbackLogic().perform(
                 this.config,
                 this.defaultUrl,
                 this.renewSession,

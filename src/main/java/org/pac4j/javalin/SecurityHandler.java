@@ -4,9 +4,8 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.servlet.JavalinServletContext;
 import org.jetbrains.annotations.NotNull;
+import org.pac4j.core.adapter.FrameworkAdapter;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.engine.DefaultSecurityLogic;
-import org.pac4j.core.engine.SecurityLogic;
 import org.pac4j.jee.context.JEEFrameworkParameters;
 
 import static org.pac4j.core.util.CommonHelper.assertNotNull;
@@ -37,14 +36,9 @@ public class SecurityHandler implements Handler {
 
     @Override
     public void handle(@NotNull Context javalinCtx) {
-        final SecurityLogic securityLogic;
-        if (config.getSecurityLogic() == null) {
-            securityLogic = DefaultSecurityLogic.INSTANCE;
-        } else {
-            securityLogic = config.getSecurityLogic();
-        }
+        FrameworkAdapter.INSTANCE.applyDefaultSettingsIfUndefined(config);
 
-        Object result = securityLogic.perform(
+        Object result = config.getSecurityLogic().perform(
             this.config,
             (ctx, store, profiles) -> AUTH_GRANTED,
             this.clients,

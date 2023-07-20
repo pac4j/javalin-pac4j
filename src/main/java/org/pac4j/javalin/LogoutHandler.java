@@ -3,9 +3,8 @@ package org.pac4j.javalin;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
+import org.pac4j.core.adapter.FrameworkAdapter;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.engine.DefaultLogoutLogic;
-import org.pac4j.core.engine.LogoutLogic;
 import org.pac4j.jee.context.JEEFrameworkParameters;
 
 import static org.pac4j.core.util.CommonHelper.assertNotNull;
@@ -35,14 +34,9 @@ public class LogoutHandler implements Handler {
 
     @Override
     public void handle(@NotNull Context javalinCtx) {
-        final LogoutLogic logoutLogic;
-        if (config.getLogoutLogic() == null) {
-            logoutLogic = DefaultLogoutLogic.INSTANCE;
-        } else {
-            logoutLogic = config.getLogoutLogic();
-        }
+        FrameworkAdapter.INSTANCE.applyDefaultSettingsIfUndefined(config);
 
-        logoutLogic.perform(
+        config.getLogoutLogic().perform(
             this.config,
             this.defaultUrl,
             this.logoutUrlPattern,
