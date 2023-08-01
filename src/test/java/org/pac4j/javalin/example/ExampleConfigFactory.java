@@ -11,12 +11,15 @@ import org.pac4j.core.credentials.TokenCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.matching.matcher.PathMatcher;
 import org.pac4j.core.profile.CommonProfile;
+import org.pac4j.core.profile.factory.ProfileManagerFactory;
 import org.pac4j.core.util.CommonHelper;
 import org.pac4j.http.client.direct.DirectBasicAuthClient;
 import org.pac4j.http.client.direct.HeaderClient;
 import org.pac4j.http.client.direct.ParameterClient;
 import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
+import org.pac4j.jee.context.JEEContextFactory;
+import org.pac4j.jee.context.session.JEESessionStoreFactory;
 import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
 import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.pac4j.oauth.client.FacebookClient;
@@ -44,7 +47,7 @@ public class ExampleConfigFactory implements ConfigFactory {
         oidcConfiguration.setUseNonce(true);
         oidcConfiguration.addCustomParam("prompt", "consent");
         OidcClient oidcClient = new OidcClient(oidcConfiguration);
-        oidcClient.setAuthorizationGenerator((ctx, sessionStore, profile) -> {
+        oidcClient.setAuthorizationGenerator((ctx, profile) -> {
             profile.addRole("ROLE_ADMIN");
             return Optional.of(profile);
         });
@@ -80,7 +83,7 @@ public class ExampleConfigFactory implements ConfigFactory {
 
         // basic auth
         DirectBasicAuthClient directBasicAuthClient = new DirectBasicAuthClient(trivialUserPassAuthenticator);
-        HeaderClient headerClient = new HeaderClient("Authorization", (Authenticator) (credentials, ctx, sessionStore) -> {
+        HeaderClient headerClient = new HeaderClient("Authorization", (Authenticator) (ctx, credentials) -> {
             String token = ((TokenCredentials) credentials).getToken();
             if (CommonHelper.isNotBlank(token)) {
                 CommonProfile profile = new CommonProfile();
@@ -110,6 +113,9 @@ public class ExampleConfigFactory implements ConfigFactory {
         config.addAuthorizer("custom", new CustomAuthorizer());
         config.addMatcher("excludedPath", new PathMatcher().excludeRegex("^/facebook/notprotected$"));
         config.setHttpActionAdapter(new ExampleHttpActionAdapter());
+        config.setWebContextFactory(JEEContextFactory.INSTANCE);
+        config.setSessionStoreFactory(JEESessionStoreFactory.INSTANCE);
+        config.setProfileManagerFactory(ProfileManagerFactory.DEFAULT);
         return config;
     }
 }

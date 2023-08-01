@@ -3,14 +3,9 @@ package org.pac4j.javalin;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
+import org.pac4j.core.adapter.FrameworkAdapter;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.core.context.session.SessionStoreFactory;
-import org.pac4j.core.engine.DefaultLogoutLogic;
-import org.pac4j.core.engine.LogoutLogic;
-import org.pac4j.core.http.adapter.HttpActionAdapter;
-import org.pac4j.core.util.FindBest;
-import org.pac4j.jee.context.session.JEESessionStoreFactory;
+import org.pac4j.jee.context.JEEFrameworkParameters;
 
 import static org.pac4j.core.util.CommonHelper.assertNotNull;
 
@@ -39,21 +34,16 @@ public class LogoutHandler implements Handler {
 
     @Override
     public void handle(@NotNull Context javalinCtx) {
-        final SessionStoreFactory sessionStoreFactory = FindBest.sessionStoreFactory(null, config, JEESessionStoreFactory.INSTANCE);
-        final SessionStore sessionStore = sessionStoreFactory.newSessionStore(javalinCtx);
-        final HttpActionAdapter bestAdapter = FindBest.httpActionAdapter(null, config, JavalinHttpActionAdapter.INSTANCE);
-        final LogoutLogic bestLogic = FindBest.logoutLogic(null, config, DefaultLogoutLogic.INSTANCE);
+        FrameworkAdapter.INSTANCE.applyDefaultSettingsIfUndefined(config);
 
-        bestLogic.perform(
-            new JavalinWebContext(javalinCtx),
-            sessionStore,
+        config.getLogoutLogic().perform(
             this.config,
-                bestAdapter,
             this.defaultUrl,
             this.logoutUrlPattern,
             this.localLogout,
             this.destroySession,
-            this.centralLogout
+            this.centralLogout,
+            new JEEFrameworkParameters(javalinCtx.req(), javalinCtx.res())
         );
     }
 }

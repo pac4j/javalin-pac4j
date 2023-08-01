@@ -6,143 +6,60 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.engine.CallbackLogic;
-import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.http.client.indirect.FormClient;
-import org.pac4j.jee.context.session.JEESessionStore;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 public class CallbackHandlerTest {
 
-    private final TestCallbackLogic testCallbackLogic = new TestCallbackLogic();
+    private final CallbackLogic callbackLogic = mock(CallbackLogic.class);
     private final HttpServletRequest req = mock(HttpServletRequest.class);
     private final HttpServletResponse res = mock(HttpServletResponse.class);
     private final Context ctx = mock(Context.class);
     private final FormClient formClient = new FormClient();
     private final Config config = new Config(formClient);
-    private final CallbackHandler handler = new CallbackHandler(config, "DefaultClient");
 
     @BeforeEach
     public void setCallbackLogic() {
-        config.setCallbackLogic(testCallbackLogic);
+        config.setCallbackLogic(callbackLogic);
         formClient.setCallbackUrl("http://example.org/callbackUrl");
         when(ctx.res()).thenReturn(res);
         when(ctx.req()).thenReturn(req);
     }
 
     @Test
-    public void testDefaultSessionStore() {
+    public void testDefaultUrlIsNull() {
+        CallbackHandler handler = new CallbackHandler(config);
         handler.handle(ctx);
 
-        assertThat(testCallbackLogic.sessionStore).isEqualTo(JEESessionStore.INSTANCE);
-        assertThat(testCallbackLogic.webContext).isExactlyInstanceOf(JavalinWebContext.class);
-        assertThat(testCallbackLogic.config).isSameAs(config);
+        verify(callbackLogic).perform(eq(config), isNull(), any(), eq("FormClient"), any());
     }
 
     @Test
-    public void testCustomSessionStore() {
-        final SessionStore mockSessionStore = mock(SessionStore.class);
-        config.setSessionStoreFactory(parameters -> mockSessionStore);
-
+    public void testDefaultUrl() {
+        CallbackHandler handler = new CallbackHandler(config, "/my-url");
         handler.handle(ctx);
 
-        assertThat(testCallbackLogic.sessionStore).isNotEqualTo(JEESessionStore.INSTANCE);
-        assertThat(testCallbackLogic.sessionStore).isEqualTo(mockSessionStore);
+        verify(callbackLogic).perform(eq(config), eq("/my-url"), any(), any(), any());
     }
 
     @Test
-    public void testDefaultAdapter() {
+    public void testRenewSession() {
+        CallbackHandler handler = new CallbackHandler(config, "/my-url", true);
+
         handler.handle(ctx);
 
-        assertThat(testCallbackLogic.httpActionAdapter).isEqualTo(JavalinHttpActionAdapter.INSTANCE);
+        verify(callbackLogic).perform(eq(config), any(), eq(true), any(), any());
     }
 
     @Test
-    public void testCustomAdapter() {
-        HttpActionAdapter actionAdapter = new JavalinHttpActionAdapter();
-        config.setHttpActionAdapter(actionAdapter);
+    public void testRenewSessionFalse() {
+        CallbackHandler handler = new CallbackHandler(config, "/my-url", false);
 
         handler.handle(ctx);
 
-        assertThat(testCallbackLogic.httpActionAdapter).isNotEqualTo(JavalinHttpActionAdapter.INSTANCE);
-        assertThat(testCallbackLogic.httpActionAdapter).isEqualTo(actionAdapter);
-    }
-
-    @Test
-    public void testCustomClientName() {
-        formClient.setName("my-name");
-
-        handler.handle(ctx);
-
-        assertThat(testCallbackLogic.defaultClient).isEqualTo("my-name");
-    }
-
-    @Test
-    public void testCustomDefaultUrl() {
-        final Config config = new Config(formClient);
-        config.setCallbackLogic(testCallbackLogic);
-        final CallbackHandler handler = new CallbackHandler(config, "http://example.org",  true);
-
-        handler.handle(ctx);
-
-        assertThat(testCallbackLogic.defaultUrl).isEqualTo("http://example.org");
-    }
-
-    @Test
-    public void testDefaultRenewSession() {
-        handler.handle(ctx);
-
-        assertThat(testCallbackLogic.renewSession).isNull();
-    }
-
-    @Test
-    public void testCustomRenewSessionTrue() {
-        final Config config = new Config(formClient);
-        config.setCallbackLogic(testCallbackLogic);
-        final CallbackHandler handler = new CallbackHandler(config, "http://example.org", true);
-
-        handler.handle(ctx);
-
-        assertThat(testCallbackLogic.renewSession).isTrue();
-    }
-
-    @Test
-    public void testCustomRenewSessionFalse() {
-        final Config config = new Config(formClient);
-        config.setCallbackLogic(testCallbackLogic);
-        final CallbackHandler handler = new CallbackHandler(config, "http://example.org", false);
-
-        handler.handle(ctx);
-
-        assertThat(testCallbackLogic.renewSession).isFalse();
-    }
-
-    public static class TestCallbackLogic implements CallbackLogic {
-
-        private WebContext webContext;
-        private SessionStore sessionStore;
-        private Config config;
-        private HttpActionAdapter httpActionAdapter;
-        private String defaultUrl;
-        private Boolean renewSession;
-        private String defaultClient;
-
-        @Override
-        public Object perform(WebContext webContext, SessionStore sessionStore, Config config,
-                              HttpActionAdapter httpActionAdapter, String defaultUrl, Boolean renewSession, String defaultClient) {
-            this.webContext = webContext;
-            this.sessionStore = sessionStore;
-            this.config = config;
-            this.httpActionAdapter = httpActionAdapter;
-            this.defaultUrl = defaultUrl;
-            this.renewSession = renewSession;
-            this.defaultClient = defaultClient;
-            return null;
-        }
+        verify(callbackLogic).perform(eq(config), any(), eq(false), any(), any());
     }
 }

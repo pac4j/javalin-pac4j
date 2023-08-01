@@ -3,9 +3,9 @@ package org.pac4j.javalin;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import io.javalin.http.ForbiddenResponse;
-import io.javalin.http.HttpStatus;
 import io.javalin.http.RedirectResponse;
 import io.javalin.http.UnauthorizedResponse;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,25 +19,24 @@ import org.pac4j.core.exception.http.OkAction;
 import org.pac4j.core.exception.http.UnauthorizedAction;
 import org.pac4j.jee.context.JEEContext;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
 class JavalinHttpActionAdapterTest {
 
     private final HttpServletRequest req = mock(HttpServletRequest.class);
     private final HttpServletResponse res = mock(HttpServletResponse.class);
     private final Context ctx = mock(Context.class);
-    private JavalinWebContext context;
+    private final JEEContext context = new JEEContext(req, res);
 
     @BeforeEach
     public void setupMocks() {
         when(ctx.res()).thenReturn(res);
         when(ctx.req()).thenReturn(req);
-        context = new JavalinWebContext(ctx);
     }
 
     @Test
@@ -53,20 +52,17 @@ class JavalinHttpActionAdapterTest {
     }
 
     @Test
-    public void testContextNoJavalinWebContext() {
-        final JEEContext jeeContext = new JEEContext(req, res);
-        assertThatThrownBy(() -> JavalinHttpActionAdapter.INSTANCE.adapt(new OkAction(""), jeeContext))
-                .hasMessageContaining("not a Javalin web context");
-    }
+    public void testAdapterWithContentAction() throws IOException  {
+        ServletOutputStream sos = mock(ServletOutputStream.class);
+        when(res.getOutputStream()).thenReturn(sos);
 
-    @Test
-    public void testAdapterWithContentAction() {
         JavalinHttpActionAdapter.INSTANCE.adapt(new OkAction("my-content"), context);
 
-        verify(ctx).status(200);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(ctx).result(captor.capture());
-        assertThat(captor.getValue()).isEqualTo("my-content");
+        verify(res).setStatus(eq(200));
+        ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+        verify(sos).write(captor.capture());
+        byte[] value = captor.getValue();
+        assertThat(new String(value, StandardCharsets.UTF_8)).isEqualTo("my-content");
     }
 
     @Test
@@ -74,9 +70,8 @@ class JavalinHttpActionAdapterTest {
         assertThatThrownBy(() -> JavalinHttpActionAdapter.INSTANCE.adapt(new FoundAction("/redirect"), context))
                 .isExactlyInstanceOf(RedirectResponse.class);
 
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(ctx).redirect(captor.capture(), eq(HttpStatus.FOUND));
-        assertThat(captor.getValue()).isEqualTo("/redirect");
+        verify(res).setStatus(eq(302));
+        verify(res).setHeader(eq("Location"), eq("/redirect"));
     }
 
     @Test
@@ -101,6 +96,6 @@ class JavalinHttpActionAdapterTest {
     public void testAdapterAnyOtherStatus() {
         JavalinHttpActionAdapter.INSTANCE.adapt(new HttpAction(123) {}, context);
 
-        verify(ctx).status(123);
+        verify(res).setStatus(eq(123));
     }
 }

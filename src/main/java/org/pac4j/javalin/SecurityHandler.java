@@ -4,14 +4,9 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.servlet.JavalinServletContext;
 import org.jetbrains.annotations.NotNull;
+import org.pac4j.core.adapter.FrameworkAdapter;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.core.context.session.SessionStoreFactory;
-import org.pac4j.core.engine.DefaultSecurityLogic;
-import org.pac4j.core.engine.SecurityLogic;
-import org.pac4j.core.http.adapter.HttpActionAdapter;
-import org.pac4j.core.util.FindBest;
-import org.pac4j.jee.context.session.JEESessionStoreFactory;
+import org.pac4j.jee.context.JEEFrameworkParameters;
 
 import static org.pac4j.core.util.CommonHelper.assertNotNull;
 
@@ -41,21 +36,15 @@ public class SecurityHandler implements Handler {
 
     @Override
     public void handle(@NotNull Context javalinCtx) {
-        final SessionStoreFactory sessionStoreFactory = FindBest.sessionStoreFactory(null, config, JEESessionStoreFactory.INSTANCE);
-        final SessionStore sessionStore = sessionStoreFactory.newSessionStore(javalinCtx);
-        final HttpActionAdapter bestAdapter = FindBest.httpActionAdapter(null, config, JavalinHttpActionAdapter.INSTANCE);
-        final SecurityLogic bestLogic = FindBest.securityLogic(null, config, DefaultSecurityLogic.INSTANCE);
+        FrameworkAdapter.INSTANCE.applyDefaultSettingsIfUndefined(config);
 
-        JavalinWebContext context = new JavalinWebContext(javalinCtx);
-        Object result = bestLogic.perform(
-            context,
-            sessionStore,
+        Object result = config.getSecurityLogic().perform(
             this.config,
-            (ctx, store, profiles, parameters) -> AUTH_GRANTED,
-            bestAdapter,
+            (ctx, store, profiles) -> AUTH_GRANTED,
             this.clients,
             this.authorizers,
-            this.matchers
+            this.matchers,
+            new JEEFrameworkParameters(javalinCtx.req(), javalinCtx.res())
         );
         if (result != AUTH_GRANTED) {
             ((JavalinServletContext) javalinCtx).getTasks().clear(); // Used to throw UnauthorizedResponse
