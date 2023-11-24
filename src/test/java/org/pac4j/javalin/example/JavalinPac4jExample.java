@@ -27,9 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Optional;
 
-import static io.javalin.apibuilder.ApiBuilder.before;
-import static io.javalin.apibuilder.ApiBuilder.get;
-import static io.javalin.apibuilder.ApiBuilder.post;
+import static io.javalin.apibuilder.ApiBuilder.*;
 import static io.javalin.rendering.template.TemplateUtil.model;
 
 public class JavalinPac4jExample {
@@ -128,7 +126,7 @@ public class JavalinPac4jExample {
     }
 
     private static void jwt(Context ctx) {
-        ProfileManager manager = new ProfileManager(new JEEContext(ctx.req(), ctx.res()), JEESessionStore.INSTANCE);
+        ProfileManager manager = new ProfileManager(new JEEContext(ctx.req(), ctx.res()), new JEESessionStore());
         Optional<CommonProfile> profile = manager.getProfile(CommonProfile.class);
         String token = "";
         if (profile.isPresent()) {
@@ -168,7 +166,7 @@ public class JavalinPac4jExample {
 
         HttpAction action;
         try {
-            action = client.getRedirectionAction(new CallContext(context, JEESessionStore.INSTANCE)).get();
+            action = client.getRedirectionAction(new CallContext(context, new JEESessionStore())).get();
         } catch (HttpAction e) {
             action = e;
         }
