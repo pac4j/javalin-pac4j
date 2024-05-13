@@ -1,10 +1,6 @@
 package org.pac4j.javalin;
 
-import io.javalin.http.BadRequestResponse;
-import io.javalin.http.Context;
-import io.javalin.http.ForbiddenResponse;
-import io.javalin.http.RedirectResponse;
-import io.javalin.http.UnauthorizedResponse;
+import io.javalin.http.*;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,12 +27,13 @@ class JavalinHttpActionAdapterTest {
     private final HttpServletRequest req = mock(HttpServletRequest.class);
     private final HttpServletResponse res = mock(HttpServletResponse.class);
     private final Context ctx = mock(Context.class);
-    private final JEEContext context = new JEEContext(req, res);
+    private JavalinWebContext context;
 
     @BeforeEach
     public void setupMocks() {
         when(ctx.res()).thenReturn(res);
         when(ctx.req()).thenReturn(req);
+        context = new JavalinWebContext(ctx);
     }
 
     @Test
@@ -53,25 +50,22 @@ class JavalinHttpActionAdapterTest {
 
     @Test
     public void testAdapterWithContentAction() throws IOException  {
-        ServletOutputStream sos = mock(ServletOutputStream.class);
-        when(res.getOutputStream()).thenReturn(sos);
 
         JavalinHttpActionAdapter.INSTANCE.adapt(new OkAction("my-content"), context);
 
-        verify(res).setStatus(eq(200));
-        ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
-        verify(sos).write(captor.capture());
-        byte[] value = captor.getValue();
-        assertThat(new String(value, StandardCharsets.UTF_8)).isEqualTo("my-content");
+        verify(ctx).status(eq(200));
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(ctx).result(captor.capture());
+        assertThat(captor.getValue()).isEqualTo("my-content");
     }
 
     @Test
     public void testAdapterWithLocationAction() {
-        assertThatThrownBy(() -> JavalinHttpActionAdapter.INSTANCE.adapt(new FoundAction("/redirect"), context))
-                .isExactlyInstanceOf(RedirectResponse.class);
+        JavalinHttpActionAdapter.INSTANCE.adapt(new FoundAction("/redirect"), context);
 
-        verify(res).setStatus(eq(302));
-        verify(res).setHeader(eq("Location"), eq("/redirect"));
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(ctx).redirect(captor.capture(), eq(HttpStatus.FOUND));
+        assertThat(captor.getValue()).isEqualTo("/redirect");
     }
 
     @Test
@@ -96,6 +90,6 @@ class JavalinHttpActionAdapterTest {
     public void testAdapterAnyOtherStatus() {
         JavalinHttpActionAdapter.INSTANCE.adapt(new HttpAction(123) {}, context);
 
-        verify(res).setStatus(eq(123));
+        verify(ctx).status(eq(123));
     }
 }
