@@ -1,9 +1,6 @@
 package org.pac4j.javalin;
 
-import io.javalin.http.BadRequestResponse;
-import io.javalin.http.ForbiddenResponse;
-import io.javalin.http.RedirectResponse;
-import io.javalin.http.UnauthorizedResponse;
+import io.javalin.http.*;
 import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.http.HttpAction;
@@ -11,10 +8,6 @@ import org.pac4j.core.exception.http.WithContentAction;
 import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.core.util.CommonHelper;
-import org.pac4j.jee.context.JEEContext;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 /**
  * @author Maximilian Hippler
@@ -27,10 +20,10 @@ public class JavalinHttpActionAdapter implements HttpActionAdapter {
     public Void adapt(HttpAction action, WebContext webContext) {
         CommonHelper.assertNotNull("action", action);
         CommonHelper.assertNotNull("context", webContext);
-        if (webContext instanceof JEEContext == false) {
-            throw new RuntimeException("not a JEEContext, but " + webContext.getClass().getName());
+        if (webContext instanceof JavalinWebContext == false) {
+            throw new RuntimeException("not a JavalinWebContext, but " + webContext.getClass().getName());
         }
-        JEEContext context = (JEEContext) webContext;
+        JavalinWebContext context = (JavalinWebContext) webContext;
 
         final int code = action.getCode();
         if (code == HttpConstants.UNAUTHORIZED) {
@@ -40,22 +33,16 @@ public class JavalinHttpActionAdapter implements HttpActionAdapter {
         } else if (code == HttpConstants.BAD_REQUEST) {
             throw new BadRequestResponse();
         } else if (action instanceof WithContentAction){
-            context.getNativeResponse().setStatus(action.getCode());
+            context.getContext().status(code);
             String responseData = ((WithContentAction) action).getContent();
-            context.getNativeResponse().setContentLength(responseData.length());
-            try {
-                context.getNativeResponse().getOutputStream().write(responseData.getBytes(StandardCharsets.UTF_8));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            context.getContext().result(responseData);
             return null;
         } else if (action instanceof WithLocationAction) {
-            context.getNativeResponse().setStatus(action.getCode());
             String location = ((WithLocationAction) action).getLocation();
-            context.getNativeResponse().setHeader("Location", location);
-            throw new RedirectResponse();
+            context.getContext().redirect(location, HttpStatus.forStatus(code));
+            return null;
         } else {
-            context.getNativeResponse().setStatus(action.getCode());
+            context.getContext().status(code);
             return null;
         }
     }

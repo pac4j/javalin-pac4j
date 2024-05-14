@@ -12,12 +12,7 @@ import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.http.client.indirect.FormClient;
-import org.pac4j.javalin.CallbackHandler;
-import org.pac4j.javalin.JavalinHttpActionAdapter;
-import org.pac4j.javalin.LogoutHandler;
-import org.pac4j.javalin.SecurityHandler;
-import org.pac4j.jee.context.JEEContext;
-import org.pac4j.jee.context.JEEFrameworkParameters;
+import org.pac4j.javalin.*;
 import org.pac4j.jee.context.session.JEESessionStore;
 import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
 import org.pac4j.jwt.profile.JwtGenerator;
@@ -126,7 +121,7 @@ public class JavalinPac4jExample {
     }
 
     private static void jwt(Context ctx) {
-        ProfileManager manager = new ProfileManager(new JEEContext(ctx.req(), ctx.res()), new JEESessionStore());
+        ProfileManager manager = new ProfileManager(new JavalinWebContext(ctx), new JEESessionStore());
         Optional<CommonProfile> profile = manager.getProfile(CommonProfile.class);
         String token = "";
         if (profile.isPresent()) {
@@ -149,7 +144,7 @@ public class JavalinPac4jExample {
     }
 
     private static List<UserProfile> getProfiles(Context ctx, Config config) {
-        JEEFrameworkParameters parameters = new JEEFrameworkParameters(ctx.req(), ctx.res());
+        JavalinFrameworkParameters parameters = new JavalinFrameworkParameters(ctx);
         return config.getProfileManagerFactory().apply(
                 config.getWebContextFactory().newContext(parameters),
                 config.getSessionStoreFactory().newSessionStore(parameters)
@@ -157,7 +152,7 @@ public class JavalinPac4jExample {
     }
 
     private static void forceLogin(Context ctx, Config config) {
-        WebContext context = config.getWebContextFactory().newContext(new JEEFrameworkParameters(ctx.req(), ctx.res()));
+        WebContext context = config.getWebContextFactory().newContext(new JavalinFrameworkParameters(ctx));
         String clientName = context.getRequestParameter("FormClient").orElse(null);
         if(clientName == null) throw new IllegalStateException("Client name not found");
 

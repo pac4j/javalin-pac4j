@@ -3,10 +3,10 @@ package org.pac4j.javalin;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.servlet.JavalinServletContext;
+import io.javalin.http.servlet.Task;
 import org.jetbrains.annotations.NotNull;
 import org.pac4j.core.adapter.FrameworkAdapter;
 import org.pac4j.core.config.Config;
-import org.pac4j.jee.context.JEEFrameworkParameters;
 
 import static org.pac4j.core.util.CommonHelper.assertNotNull;
 
@@ -44,10 +44,11 @@ public class SecurityHandler implements Handler {
             this.clients,
             this.authorizers,
             this.matchers,
-            new JEEFrameworkParameters(javalinCtx.req(), javalinCtx.res())
+            new JavalinFrameworkParameters(javalinCtx)
         );
         if (result != AUTH_GRANTED) {
-            ((JavalinServletContext) javalinCtx).getTasks().clear(); // Used to throw UnauthorizedResponse
+            // Same logic javalin natively uses for skipping future tasks after a redirect in a before handler
+            ((JavalinServletContext) javalinCtx).getTasks().removeIf(Task::getSkipIfExceptionOccurred);
         }
     }
 }

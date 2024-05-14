@@ -10,7 +10,6 @@ import org.pac4j.core.config.Config;
 import org.pac4j.core.context.FrameworkParameters;
 import org.pac4j.core.engine.LogoutLogic;
 import org.pac4j.http.client.indirect.FormClient;
-import org.pac4j.jee.context.JEEFrameworkParameters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -117,10 +116,9 @@ public class LogoutHandlerTest {
         ArgumentCaptor<FrameworkParameters> captor = ArgumentCaptor.forClass(FrameworkParameters.class);
         verify(logoutLogic).perform(any(), any(), any(), any(), any(), any(), captor.capture());
         FrameworkParameters parameters = captor.getValue();
-        assertThat(parameters).isExactlyInstanceOf(JEEFrameworkParameters.class);
+        assertThat(parameters).isExactlyInstanceOf(JavalinFrameworkParameters.class);
 
-        JEEFrameworkParameters jeeFrameworkParameters = (JEEFrameworkParameters) parameters;
-        assertThat(jeeFrameworkParameters.getRequest()).isSameAs(req);
-        assertThat(jeeFrameworkParameters.getResponse()).isSameAs(res);
+        JavalinFrameworkParameters javalinFrameworkParameters = (JavalinFrameworkParameters) parameters;
+        assertThat(javalinFrameworkParameters.getContext()).isSameAs(ctx);
     }
 }

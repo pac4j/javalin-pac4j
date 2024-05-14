@@ -18,7 +18,7 @@ import org.pac4j.http.client.direct.HeaderClient;
 import org.pac4j.http.client.direct.ParameterClient;
 import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
-import org.pac4j.jee.context.JEEContextFactory;
+import org.pac4j.javalin.JavalinContextFactory;
 import org.pac4j.jee.context.session.JEESessionStoreFactory;
 import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
 import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
@@ -113,7 +113,7 @@ public class ExampleConfigFactory implements ConfigFactory {
         config.addAuthorizer("custom", new CustomAuthorizer());
         config.addMatcher("excludedPath", new PathMatcher().excludeRegex("^/facebook/notprotected$"));
         config.setHttpActionAdapter(new ExampleHttpActionAdapter());
-        config.setWebContextFactory(JEEContextFactory.INSTANCE);
+        config.setWebContextFactory(JavalinContextFactory.INSTANCE);
         config.setSessionStoreFactory(JEESessionStoreFactory.INSTANCE);
         config.setProfileManagerFactory(ProfileManagerFactory.DEFAULT);
         return config;
