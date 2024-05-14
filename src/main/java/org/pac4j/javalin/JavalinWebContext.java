@@ -10,6 +10,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Web context that uses the Javalin implementations of parameter handling instead of the servlet ones
+ *
+ * @author Jacob Burroughs
+ * @since 7.0.0
+ */
 public class JavalinWebContext extends JEEContext {
     private final Context context;
 
