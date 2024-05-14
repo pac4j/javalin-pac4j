@@ -65,6 +65,6 @@ public class SecurityHandlerTest {
         handler.handle(ctx);
 
         verify(ctx).getTasks();
-        verify(deque).clear();
+        verify(deque).removeIf(any());
     }
 }
