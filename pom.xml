@@ -54,7 +54,7 @@
 
     <properties>
         <javalin.version>5.6.5</javalin.version>
-        <pac4j.version>6.0.2</pac4j.version>
+        <pac4j.version>6.0.3</pac4j.version>
         <java.version>17</java.version>
     </properties>
 
@@ -173,6 +173,12 @@
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
             <version>5.12.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.32</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
