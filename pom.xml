@@ -160,7 +160,7 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
-            <version>5.11.2</version>
+            <version>5.11.3</version>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
