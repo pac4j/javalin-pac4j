@@ -72,7 +72,7 @@
     </developers>
 
     <properties>
-        <javalin.version>5.6.5</javalin.version>
+        <javalin.version>7.0.0</javalin.version>
         <pac4j.version>6.3.1</pac4j.version>
         <java.version>17</java.version>
     </properties>
