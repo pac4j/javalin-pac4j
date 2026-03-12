@@ -2,7 +2,6 @@ package org.pac4j.javalin.example;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import io.javalin.rendering.template.JavalinVelocity;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.CallContext;
@@ -22,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Optional;
 
-import static io.javalin.apibuilder.ApiBuilder.*;
 import static io.javalin.rendering.template.TemplateUtil.model;
 
 public class JavalinPac4jExample {
@@ -35,69 +33,67 @@ public class JavalinPac4jExample {
         CallbackHandler callback = new CallbackHandler(config, null, true);
         SecurityHandler facebookSecurityHandler = new SecurityHandler(config, "FacebookClient", "", "excludedPath");
 
-        JavalinVelocity.init();
-        Javalin.create()
-                .routes(() -> {
+        Javalin.create(
+                cfg -> cfg.routes
+                    .get("/", ctx -> index(ctx, config))
+                    .get("/callback", callback)
+                    .post("/callback", callback)
 
-                    get("/", ctx -> index(ctx, config));
-                    get("/callback", callback);
-                    post("/callback", callback);
+                    .before("/facebook", facebookSecurityHandler)
+                    .get("/facebook", ctx -> protectedPage(ctx, config))
 
-                    before("/facebook", facebookSecurityHandler);
-                    get("/facebook", ctx -> protectedPage(ctx, config));
+                    .before("/facebook/*", facebookSecurityHandler)
+                    .get("/facebook/notprotected", ctx -> protectedPage(ctx, config)) // excluded in ExampleConfigFactory
 
-                    before("/facebook/*", facebookSecurityHandler);
-                    get("/facebook/notprotected", ctx -> protectedPage(ctx, config)); // excluded in ExampleConfigFactory
+                    .before("/facebookadmin", new SecurityHandler(config, "FacebookClient", "admin"))
+                    .get("/facebookadmin", ctx -> protectedPage(ctx, config))
 
-                    before("/facebookadmin", new SecurityHandler(config, "FacebookClient", "admin"));
-                    get("/facebookadmin", ctx -> protectedPage(ctx, config));
+                    .before("/facebookcustom", new SecurityHandler(config, "FacebookClient", "custom"))
+                    .get("/facebookcustom", ctx -> protectedPage(ctx, config))
 
-                    before("/facebookcustom", new SecurityHandler(config, "FacebookClient", "custom"));
-                    get("/facebookcustom", ctx -> protectedPage(ctx, config));
+                    .before("/twitter", new SecurityHandler(config, "TwitterClient,FacebookClient"))
+                    .get("/twitter", ctx -> protectedPage(ctx, config))
 
-                    before("/twitter", new SecurityHandler(config, "TwitterClient,FacebookClient"));
-                    get("/twitter", ctx -> protectedPage(ctx, config));
+                    .before("/form", new SecurityHandler(config, "FormClient"))
+                    .get("/form", ctx -> protectedPage(ctx, config))
 
-                    before("/form", new SecurityHandler(config, "FormClient"));
-                    get("/form", ctx -> protectedPage(ctx, config));
+                    .before("/basicauth", new SecurityHandler(config, "IndirectBasicAuthClient"))
+                    .get("/basicauth", ctx -> protectedPage(ctx, config))
 
-                    before("/basicauth", new SecurityHandler(config, "IndirectBasicAuthClient"));
-                    get("/basicauth", ctx -> protectedPage(ctx, config));
+                    .before("/cas", new SecurityHandler(config, "CasClient"))
+                    .get("/cas", ctx -> protectedPage(ctx, config))
 
-                    before("/cas", new SecurityHandler(config, "CasClient"));
-                    get("/cas", ctx -> protectedPage(ctx, config));
+                    .before("/saml2", new SecurityHandler(config, "SAML2Client"))
+                    .get("/saml2", ctx -> protectedPage(ctx, config))
 
-                    before("/saml2", new SecurityHandler(config, "SAML2Client"));
-                    get("/saml2", ctx -> protectedPage(ctx, config));
+                    .before("/oidc", new SecurityHandler(config, "OidcClient"))
+                    .get("/oidc", ctx -> protectedPage(ctx, config))
 
-                    before("/oidc", new SecurityHandler(config, "OidcClient"));
-                    get("/oidc", ctx -> protectedPage(ctx, config));
+                    .before("/protected", new SecurityHandler(config, null))
+                    .get("/protected", ctx -> protectedPage(ctx, config))
 
-                    before("/protected", new SecurityHandler(config, null));
-                    get("/protected", ctx -> protectedPage(ctx, config));
+                    .before("/dba", new SecurityHandler(config, "DirectBasicAuthClient,ParameterClient"))
+                    .get("/dba", ctx -> protectedPage(ctx, config))
 
-                    before("/dba", new SecurityHandler(config, "DirectBasicAuthClient,ParameterClient"));
-                    get("/dba", ctx -> protectedPage(ctx, config));
+                    .before("/rest-jwt", new SecurityHandler(config, "ParameterClient"))
+                    .get("/rest-jwt", ctx -> protectedPage(ctx, config))
 
-                    before("/rest-jwt", new SecurityHandler(config, "ParameterClient"));
-                    get("/rest-jwt", ctx -> protectedPage(ctx, config));
+                    .get("/jwt", JavalinPac4jExample::jwt)
 
-                    get("/jwt", JavalinPac4jExample::jwt);
-
-                    get("/login-form", ctx -> form(ctx, config));
-                    get("/logout", localLogoutHandler(config));
-                    get("/central-logout", centralLogoutHandler(config));
-                    get("/force-login", ctx -> forceLogin(ctx, config));
-                    before("/body", new SecurityHandler(config, "HeaderClient"));
-                    post("/body", ctx -> {
+                    .get("/login-form", ctx -> form(ctx, config))
+                    .get("/logout", localLogoutHandler(config))
+                    .get("/central-logout", centralLogoutHandler(config))
+                    .get("/force-login", ctx -> forceLogin(ctx, config))
+                    .before("/body", new SecurityHandler(config, "HeaderClient"))
+                    .post("/body", ctx -> {
                         logger.debug("Body: " + ctx.body());
                         ctx.result("done: " + getProfiles(ctx, config));
-                    });
-
-                }).exception(Exception.class, (e, ctx) -> {
-            logger.error("Unexpected exception", e);
-            ctx.result(e.toString());
-        }).start(8080);
+                    }).exception(Exception.class, (e, ctx) -> {
+                        logger.error("Unexpected exception", e);
+                        ctx.result(e.toString());
+                    })
+            )
+            .start(8080);
     }
 
     private static LogoutHandler centralLogoutHandler(Config config) {
@@ -133,7 +129,7 @@ public class JavalinPac4jExample {
 
     private static void form(Context ctx, Config config) {
         Client client = config.getClients().findClient("FormClient").orElse(null);
-        if(client == null) throw new IllegalStateException("Client not found");
+        if (client == null) throw new IllegalStateException("Client not found");
         FormClient formClient = (FormClient) client;
 
         ctx.render("/templates/loginForm.vm", model("callbackUrl", formClient.getCallbackUrl() + "?client_name=FormClient"));
@@ -146,18 +142,18 @@ public class JavalinPac4jExample {
     private static List<UserProfile> getProfiles(Context ctx, Config config) {
         JavalinFrameworkParameters parameters = new JavalinFrameworkParameters(ctx);
         return config.getProfileManagerFactory().apply(
-                config.getWebContextFactory().newContext(parameters),
-                config.getSessionStoreFactory().newSessionStore(parameters)
+            config.getWebContextFactory().newContext(parameters),
+            config.getSessionStoreFactory().newSessionStore(parameters)
         ).getProfiles();
     }
 
     private static void forceLogin(Context ctx, Config config) {
         WebContext context = config.getWebContextFactory().newContext(new JavalinFrameworkParameters(ctx));
         String clientName = context.getRequestParameter("FormClient").orElse(null);
-        if(clientName == null) throw new IllegalStateException("Client name not found");
+        if (clientName == null) throw new IllegalStateException("Client name not found");
 
         Client client = config.getClients().findClient(clientName).orElse(null);
-        if(client == null) throw new IllegalStateException("Client not found");
+        if (client == null) throw new IllegalStateException("Client not found");
 
         HttpAction action;
         try {

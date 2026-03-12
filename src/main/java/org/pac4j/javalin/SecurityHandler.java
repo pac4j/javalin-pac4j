@@ -48,7 +48,7 @@ public class SecurityHandler implements Handler {
         );
         if (result != AUTH_GRANTED) {
             // Same logic javalin natively uses for skipping future tasks after a redirect in a before handler
-            ((JavalinServletContext) javalinCtx).getTasks().removeIf(Task::getSkipIfExceptionOccurred);
+            ((JavalinServletContext) javalinCtx).getTasks().removeIf(Task::getSkipOnExceptionAndRedirect);
         }
     }
 }
