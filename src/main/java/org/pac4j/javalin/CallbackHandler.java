@@ -12,6 +12,8 @@ public class CallbackHandler implements Handler {
     public Config config;
     public String defaultUrl;
     public Boolean renewSession;
+    /** Optional fallback client name; null lets pac4j select the sole indirect client. */
+    public String defaultClient;
 
     public CallbackHandler(Config config) {
         this(config, null);
@@ -22,10 +24,15 @@ public class CallbackHandler implements Handler {
     }
 
     public CallbackHandler(Config config, String defaultUrl, Boolean renewSession) {
+        this(config, defaultUrl, renewSession, null);
+    }
+
+    public CallbackHandler(Config config, String defaultUrl, Boolean renewSession, String defaultClient) {
         assertNotNull("config", config);
         this.config = config;
         this.defaultUrl = defaultUrl;
         this.renewSession = renewSession;
+        this.defaultClient = defaultClient;
     }
 
     @Override
@@ -36,7 +43,7 @@ public class CallbackHandler implements Handler {
                 this.config,
                 this.defaultUrl,
                 this.renewSession,
-                config.getClients().getClients().get(0).getName(),
+                this.defaultClient,
                 new JavalinFrameworkParameters(javalinCtx)
         );
 

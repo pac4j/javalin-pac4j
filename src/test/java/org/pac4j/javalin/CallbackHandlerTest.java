@@ -34,7 +34,7 @@ public class CallbackHandlerTest {
         CallbackHandler handler = new CallbackHandler(config);
         handler.handle(ctx);
 
-        verify(callbackLogic).perform(eq(config), isNull(), any(), eq("FormClient"), any());
+        verify(callbackLogic).perform(eq(config), isNull(), any(), isNull(), any());
     }
 
     @Test
@@ -61,5 +61,22 @@ public class CallbackHandlerTest {
         handler.handle(ctx);
 
         verify(callbackLogic).perform(eq(config), any(), eq(false), any(), any());
+    }
+
+    @Test
+    public void testExplicitDefaultClient() {
+        CallbackHandler handler = new CallbackHandler(config, "/my-url", true, "FormClient");
+        handler.handle(ctx);
+
+        verify(callbackLogic).perform(eq(config), eq("/my-url"), eq(true), eq("FormClient"), any());
+    }
+
+    @Test
+    public void testCustomLogicWithNoClients() {
+        Config emptyConfig = new Config();
+        emptyConfig.setCallbackLogic(callbackLogic);
+        new CallbackHandler(emptyConfig).handle(ctx);
+
+        verify(callbackLogic).perform(eq(emptyConfig), isNull(), isNull(), isNull(), any());
     }
 }

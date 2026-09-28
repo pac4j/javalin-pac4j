@@ -3,7 +3,7 @@
 </p>
 
 The `javalin-pac4j` project is an easy and powerful security library for [Javalin](https://javalin.io) web applications which supports 
-authentication and authorization, but also logout and advanced features like session fixation and CSRF protection.
+authentication and authorization, but also logout and advanced features like protection against session fixation and CSRF.
 
 It's based on Java 17 and the **[pac4j security engine](https://github.com/pac4j/pac4j) v6**. It's available under the Apache 2 license.
 
@@ -20,7 +20,7 @@ An indirect client is for UI authentication while a direct client is for web ser
 
 3) A [**matcher**](http://www.pac4j.org/docs/matchers.html) defines whether the `SecurityHandler` must be applied and can be used for additional web processing
 
-4) The `SecurityHandler` protects an url by checking that the user is authenticated and that the authorizations are valid, according to the clients and authorizers configuration. If the user is not authenticated, it performs authentication for direct clients or starts the login process for indirect clients
+4) The `SecurityHandler` protects a URL by checking that the user is authenticated and that the authorizations are valid, according to the clients and authorizers configuration. If the user is not authenticated, it performs authentication for direct clients or starts the login process for indirect clients
 
 5) The `CallbackHandler` finishes the login process for an indirect client
 
@@ -30,20 +30,22 @@ Just follow these easy steps to secure your Javalin application:
 
 ### 1) Add the required dependencies (`javalin-pac4j` and `pac4j-*` libraries)
 
+The table below summarizes the dependency versions used by the released artifacts:
+
 | javalin-pac4j | JDK | pac4j | Javalin |
 |---------------|-----|-------|---------|
 | v8            | 17  | v6    | v7      |
 | v7            | 17  | v6    | v5.6    |
-| v6            | 11  | v5    | v5.2    |
+| v6            | 11  | v5    | v5.1    |
 | v5            | 11  | v5    | v3.13   |
-| v3            | 8   | v4    | v3.13   |
+| v3            | 8   | v4    | v3.8    |
 
-For the latest version, you need to add a dependency for:
+For the latest released version, you need to add a dependency for:
  
 - the `javalin-pac4j` library (<em>groupId</em>: **org.pac4j**, *version*: **8.0.0**)
 - the appropriate `pac4j` [submodules](http://www.pac4j.org/docs/clients.html) (<em>groupId</em>: **org.pac4j**, *version*: **6.3.3**): `pac4j-oauth` for OAuth support (Facebook, Twitter...), `pac4j-cas` for CAS support, `pac4j-ldap` for LDAP authentication, etc.
 
-All released artifacts are available in the [Maven central repository](http://search.maven.org/#search%7Cga%7C1%7Cpac4j).
+All released artifacts are available on Maven Central: [![Maven Central](https://img.shields.io/maven-central/v/org.pac4j/javalin-pac4j.svg)](https://repo1.maven.org/maven2/org/pac4j/javalin-pac4j).
 
 ### 2) Define the configuration
 
@@ -53,15 +55,21 @@ The configuration (`org.pac4j.core.config.Config`) contains all the clients and 
 * [Authorizer example](https://github.com/pac4j/javalin-pac4j/blob/master/src/test/java/org/pac4j/javalin/example/CustomAuthorizer.java)
 * [Authenticator example](https://github.com/pac4j/javalin-pac4j/blob/master/src/test/java/org/pac4j/javalin/example/TrivialUserPassAuthenticator.java)
 
-### 3) Protect urls 
+### 3) Protect URLs
 
-Create an implementation of `SecurityHandler` and attach it to a `before` handler that covers the URLs you want to protect.
+Create a `SecurityHandler` instance and register it as a `before` handler that covers the URLs you want to protect.
 The [example app](https://github.com/pac4j/javalin-pac4j/blob/master/src/test/java/org/pac4j/javalin/example/JavalinPac4jExample.java) shows an implementation for every client.
 
 ### 4) Define the callback endpoint only for indirect clients (`CallbackHandler`)
 
 For indirect clients (like Facebook), the user is redirected to an external identity provider for login and then back to the application.
 The [example app](https://github.com/pac4j/javalin-pac4j/blob/master/src/test/java/org/pac4j/javalin/example/JavalinPac4jExample.java) shows an implementation.
+
+**In the current development version (`8.0.1-SNAPSHOT`):** when the callback request does not identify a client
+and no explicit fallback is configured, pac4j selects the only indirect client, if there is exactly one.
+To configure a fallback explicitly when using multiple indirect clients, use
+`new CallbackHandler(config, "/", true, "FormClient")` or set the handler's `defaultClient` field.
+The first client in the configuration is no longer implicitly used as the fallback. These changes are not available in `8.0.0`.
 
 ### 5) Get the user profile (via `HttpServletRequest` or `ProfileManager`)
 
@@ -78,7 +86,9 @@ You can use the [mailing lists](http://www.pac4j.org/mailing-lists.html) or the 
 
 ## Development
 
-Maven artifacts are built via Github Actions and available in the Central Portal Snapshots repository. This repository must be added in the Maven `pom.xml` file for example:
+Snapshot artifacts are built via GitHub Actions and published to the Central Portal Snapshots repository.
+The current development version is `8.0.1-SNAPSHOT`, using pac4j `6.5.8` and Javalin `7.2.3`.
+To use snapshot artifacts, add this repository to your Maven `pom.xml`:
 
 ```xml
 <repositories>

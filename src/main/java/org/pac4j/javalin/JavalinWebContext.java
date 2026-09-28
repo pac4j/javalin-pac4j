@@ -29,6 +29,12 @@ public class JavalinWebContext extends JEEContext {
         return context;
     }
 
+    @Override
+    public String getRequestContent() {
+        // Share Javalin's cached body instead of mixing servlet reader and input stream access.
+        return context.body();
+    }
+
     // We use our own implementation here because javalin does not use the servlet getParameter, and using the
     // servlet getParameter method will consume the body and break javalin's formParams
     @Override

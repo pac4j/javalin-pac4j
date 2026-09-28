@@ -1,7 +1,9 @@
 package org.pac4j.javalin.example;
 
 import io.javalin.Javalin;
+import io.javalin.config.JavalinConfig;
 import io.javalin.http.Context;
+import io.javalin.rendering.template.JavalinVelocity;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.CallContext;
@@ -10,6 +12,7 @@ import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.util.Pac4jConstants;
 import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.javalin.*;
 import org.pac4j.jee.context.session.JEESessionStore;
@@ -30,11 +33,15 @@ public class JavalinPac4jExample {
     public static void main(String[] args) {
 
         final Config config = new ExampleConfigFactory(JWT_SALT).build();
+        Javalin.create(cfg -> configure(cfg, config)).start(8080);
+    }
+
+    static void configure(JavalinConfig cfg, Config config) {
+        cfg.fileRenderer(new JavalinVelocity());
         CallbackHandler callback = new CallbackHandler(config, null, true);
         SecurityHandler facebookSecurityHandler = new SecurityHandler(config, "FacebookClient", "", "excludedPath");
 
-        Javalin.create(
-                cfg -> cfg.routes
+        cfg.routes
                     .get("/", ctx -> index(ctx, config))
                     .get("/callback", callback)
                     .post("/callback", callback)
@@ -91,9 +98,7 @@ public class JavalinPac4jExample {
                     }).exception(Exception.class, (e, ctx) -> {
                         logger.error("Unexpected exception", e);
                         ctx.result(e.toString());
-                    })
-            )
-            .start(8080);
+                    });
     }
 
     private static LogoutHandler centralLogoutHandler(Config config) {
@@ -149,7 +154,7 @@ public class JavalinPac4jExample {
 
     private static void forceLogin(Context ctx, Config config) {
         WebContext context = config.getWebContextFactory().newContext(new JavalinFrameworkParameters(ctx));
-        String clientName = context.getRequestParameter("FormClient").orElse(null);
+        String clientName = context.getRequestParameter(Pac4jConstants.DEFAULT_CLIENT_NAME_PARAMETER).orElse(null);
         if (clientName == null) throw new IllegalStateException("Client name not found");
 
         Client client = config.getClients().findClient(clientName).orElse(null);
