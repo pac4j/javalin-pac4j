@@ -42,8 +42,10 @@ The table below summarizes the dependency versions used by the released artifact
 
 For the latest released version, you need to add a dependency for:
  
-- the `javalin-pac4j` library (<em>groupId</em>: **org.pac4j**, *version*: **8.0.0**)
-- the appropriate `pac4j` [submodules](http://www.pac4j.org/docs/clients.html) (<em>groupId</em>: **org.pac4j**, *version*: **6.3.3**): `pac4j-oauth` for OAuth support (Facebook, Twitter...), `pac4j-cas` for CAS support, `pac4j-ldap` for LDAP authentication, etc.
+- the `javalin-pac4j` library (<em>groupId</em>: **org.pac4j**, *version*: **8.0.1**)
+- the appropriate `pac4j` [submodules](http://www.pac4j.org/docs/clients.html) (<em>groupId</em>: **org.pac4j**, *version*: **6.5.9**): `pac4j-oauth` for OAuth support (Facebook, Twitter...), `pac4j-cas` for CAS support, `pac4j-ldap` for LDAP authentication, etc.
+
+Version `8.0.1` uses Java 17 and Javalin `7.2.3`.
 
 All released artifacts are available on Maven Central: [![Maven Central](https://img.shields.io/maven-central/v/org.pac4j/javalin-pac4j.svg)](https://repo1.maven.org/maven2/org/pac4j/javalin-pac4j).
 
@@ -65,7 +67,7 @@ The [example app](https://github.com/pac4j/javalin-pac4j/blob/master/src/test/ja
 For indirect clients (like Facebook), the user is redirected to an external identity provider for login and then back to the application.
 The [example app](https://github.com/pac4j/javalin-pac4j/blob/master/src/test/java/org/pac4j/javalin/example/JavalinPac4jExample.java) shows an implementation.
 
-**In the current development version (`8.0.1-SNAPSHOT`):** when the callback request does not identify a client
+**Since version `8.0.1`:** when the callback request does not identify a client
 and no explicit fallback is configured, pac4j selects the only indirect client, if there is exactly one.
 To configure a fallback explicitly when using multiple indirect clients, use
 `new CallbackHandler(config, "/", true, "FormClient")` or set the handler's `defaultClient` field.
@@ -87,7 +89,7 @@ You can use the [mailing lists](http://www.pac4j.org/mailing-lists.html) or the 
 ## Development
 
 Snapshot artifacts are built via GitHub Actions and published to the Central Portal Snapshots repository.
-The current development version is `8.0.1-SNAPSHOT`, using pac4j `6.5.8` and Javalin `7.2.3`.
+The current development version is `8.0.2-SNAPSHOT`, using pac4j `6.5.9` and Javalin `7.2.3`.
 To use snapshot artifacts, add this repository to your Maven `pom.xml`:
 
 ```xml
