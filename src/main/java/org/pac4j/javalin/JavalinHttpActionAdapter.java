@@ -10,10 +10,13 @@ import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.core.util.CommonHelper;
 
 /**
+ * Translates pac4j HTTP actions into Javalin responses and HTTP exceptions.
+ *
  * @author Maximilian Hippler
  * @since 3.0.0
  */
 public class JavalinHttpActionAdapter implements HttpActionAdapter {
+    /** Shared stateless adapter instance. */
     public static final JavalinHttpActionAdapter INSTANCE = new JavalinHttpActionAdapter();
 
     @Override

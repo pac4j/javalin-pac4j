@@ -6,6 +6,9 @@ import org.pac4j.javalin.JavalinContextFactory;
 import org.pac4j.javalin.JavalinHttpActionAdapter;
 import org.pac4j.jee.context.session.JEESessionStoreFactory;
 
+/**
+ * Supplies Javalin context, session store and HTTP action adapter defaults to pac4j.
+ */
 public class FrameworkAdapterImpl extends DefaultFrameworkAdapter {
 
     @Override

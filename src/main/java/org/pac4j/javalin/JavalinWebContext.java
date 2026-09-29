@@ -19,12 +19,22 @@ import java.util.stream.Stream;
 public class JavalinWebContext extends JEEContext {
     private final Context context;
 
+    /**
+     * Wraps a Javalin request context for use by pac4j.
+     *
+     * @param context the Javalin context providing the servlet request and response
+     */
     public JavalinWebContext(final Context context) {
         super(context.req(), context.res());
 
         this.context = context;
     }
 
+    /**
+     * Returns the underlying Javalin context.
+     *
+     * @return the wrapped Javalin context
+     */
     public Context getContext() {
         return context;
     }
